@@ -4663,6 +4663,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "pa-integration-test-harness"
+version = "2.0.0-rc2"
+
+[[package]]
 name = "parity-scale-codec"
 version = "3.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
