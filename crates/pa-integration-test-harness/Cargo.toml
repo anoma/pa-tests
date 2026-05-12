@@ -11,6 +11,7 @@ alloy = { workspace = true, features = ["sol-types"] }
 anoma-pa-evm-bindings.workspace = true
 anoma-rm-risc0.workspace = true
 anyhow.workspace = true
+async-trait.workspace = true
 bincode.workspace = true
 risc0-zkvm.workspace = true
 sha2.workspace = true
