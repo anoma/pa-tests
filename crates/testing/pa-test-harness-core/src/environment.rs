@@ -50,16 +50,10 @@ pub trait ProtocolAdapter {
 
     /// Get a reference to the commitment tree root.
     fn commitment_tree(&self) -> &Self::CommitmentTree;
-
-    /// Get a mut reference to the commitment tree root.
-    fn commitment_tree_mut(&mut self) -> &mut Self::CommitmentTree;
 }
 
 /// Commitment tree associated with the protocol adapter.
 pub trait CommitmentTree {
-    /// Append a new commmitment to the tree.
-    fn append(&mut self, commitment: Digest) -> anyhow::Result<()>;
-
     /// Compute the current root of the tree.
     fn root(&self) -> anyhow::Result<Digest>;
 
