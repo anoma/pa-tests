@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "crates/testing/pa-test-harness-core",
-  "crates/testing/pa-integration-tests",
+  "crates/testing/pa-evm-integration-tests",
   "crates/testing/pa-test-harness-evm-action-trivial",
   "crates/testing/pa-test-harness-evm",
   "crates/testing/pa-test-harness-evm-erc20",
