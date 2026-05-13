@@ -6,12 +6,16 @@ license.workspace = true
 readme.workspace = true
 version.workspace = true
 
+[features]
+default = ["pa-bindings"]
+pa-bindings = ["dep:anoma-pa-evm-bindings"]
+
 [dependencies]
 pa-test-harness-core = { path = "../pa-test-harness-core" }
 
 alloy = { workspace = true, features = ["sol-types"] }
 alloy-chains.workspace = true
-anoma-pa-evm-bindings.workspace = true
+anoma-pa-evm-bindings = { workspace = true, optional = true }
 anoma-rm-risc0.workspace = true
 anyhow.workspace = true
 bincode.workspace = true
