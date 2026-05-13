@@ -9,6 +9,7 @@ version.workspace = true
 [features]
 default = []
 ierc20-bindings = []
+example-erc20-bindings = []
 weth-bindings = []
 
 [dependencies]
