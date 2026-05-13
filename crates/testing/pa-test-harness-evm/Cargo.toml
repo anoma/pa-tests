@@ -9,6 +9,7 @@ version.workspace = true
 [features]
 default = ["pa-bindings"]
 pa-bindings = ["dep:anoma-pa-evm-bindings"]
+mock-risc0-bindings = []
 
 [dependencies]
 pa-test-harness-core = { path = "../pa-test-harness-core" }
