@@ -1,12 +1,6 @@
 [workspace]
 members = [
-  "crates/transfer_app",
-  "crates/transfer_library_v2",
-  "crates/database",
-  "crates/transfer_web",
-  "crates/transfer_orchestrator",
-  "crates/transfer_benchmark",
-  "crates/testing/pa-integration-test-harness",
+  "crates/testing/pa-test-harness-core",
 ]
 resolver = "3"
 
