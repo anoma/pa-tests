@@ -6,7 +6,12 @@ license.workspace = true
 readme.workspace = true
 version.workspace = true
 
+[features]
+default = []
+mocks = ["dep:mockall"]
+
 [dependencies]
 anoma-pa-evm-bindings.workspace = true
 anoma-rm-risc0.workspace = true
 anyhow.workspace = true
+mockall = { workspace = true, optional = true }
