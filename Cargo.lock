@@ -4504,11 +4504,21 @@ dependencies = [
 name = "pa-test-harness-core"
 version = "2.0.0-rc2"
 dependencies = [
+ "anoma-pa-evm-bindings",
+ "anoma-rm-risc0",
+ "anyhow",
+]
+
+[[package]]
+name = "pa-test-harness-evm"
+version = "2.0.0-rc2"
+dependencies = [
  "alloy",
  "anoma-pa-evm-bindings",
  "anoma-rm-risc0",
  "anyhow",
  "bincode",
+ "pa-test-harness-core",
  "risc0-zkvm",
  "sha2 0.11.0",
 ]

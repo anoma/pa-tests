@@ -1,5 +1,3 @@
-mod simulated;
-
 use std::any::Any;
 use std::borrow::Cow;
 use std::collections::HashMap;
@@ -47,6 +45,7 @@ pub trait ProtocolAdapter {
 
     /// Executes a transaction by adding the commitments and nullifiers
     /// to the commitment tree and nullifier set, respectively.
+    #[allow(async_fn_in_trait)]
     async fn execute(&mut self, transaction: Self::Transaction) -> anyhow::Result<()>;
 
     /// Get a reference to the commitment tree root.
@@ -76,6 +75,7 @@ pub trait Prover {
     /// Prove an ARM transaction.
     ///
     /// Invalid witnesses will result in an error.
+    #[allow(async_fn_in_trait)]
     async fn prove(&self, actions: Vec<ActionWitnesses>) -> anyhow::Result<Self::Transaction>;
 }
 

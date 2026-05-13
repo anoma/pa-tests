@@ -7,16 +7,17 @@ use anoma_rm_risc0::logic_instance::LogicInstance;
 use anoma_rm_risc0::logic_proof::LogicVerifierInputs;
 use anoma_rm_risc0::transaction::{Delta, Transaction as ArmTxn};
 use anyhow::Context;
+use pa_test_harness_core::witness::{ActionWitnesses, LogicWitness};
 use risc0_zkvm::{Digest, Groth16Receipt, InnerReceipt, MaybePruned};
 use sha2::{Digest as _, Sha256};
 
-use crate::witness::{ActionWitnesses, LogicWitness};
-
 pub const MOCK_VERIFIER_SELECTOR: [u8; 4] = [0xFF, 0xFF, 0xFF, 0xFF];
 
-/// Protocol adapter execution environment simulated locally.
+/// Protocol adapter execution environment for integration tests.
 ///
-/// Proof verification is mocked on the EVM PA.
+/// ZKPs are mocked in this environment. This is achieved by using a mock
+/// Risc0 verifier on the EVM, and constraining the circuits directly on
+/// the host, in the prover implementation.
 pub struct Environment {
     action_tree: MerkleTree,
 }
@@ -244,9 +245,9 @@ mod tests {
     use anoma_rm_risc0::nullifier_key::NullifierKey;
     use anoma_rm_risc0::resource::Resource;
     use anoma_rm_risc0::resource_logic::TrivialLogicWitness;
+    use pa_test_harness_core::witness::ComplianceUnitWitnesses;
 
     use super::*;
-    use crate::witness::ComplianceUnitWitnesses;
 
     #[test]
     fn constrain_trivial() {

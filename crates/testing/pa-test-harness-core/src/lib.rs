@@ -1,2 +1,2 @@
-mod environment;
-mod witness;
+pub mod environment;
+pub mod witness;
