@@ -4501,6 +4501,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "pa-evm-integration-tests"
+version = "2.0.0-rc2"
+dependencies = [
+ "anyhow",
+ "pa-test-harness-core",
+ "pa-test-harness-evm",
+ "pa-test-harness-evm-action-trivial",
+ "risc0-zkvm",
+ "tokio",
+]
+
+[[package]]
 name = "pa-test-harness-core"
 version = "2.0.0-rc2"
 dependencies = [
