@@ -1,0 +1,17 @@
+[package]
+name = "pa-test-harness-evm-action-trivial"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+readme.workspace = true
+version.workspace = true
+
+[dependencies]
+pa-test-harness-core = { path = "../pa-test-harness-core" }
+
+anoma-rm-risc0.workspace = true
+anyhow.workspace = true
+risc0-zkvm.workspace = true
+
+[dev-dependencies]
+pa-test-harness-core = { path = "../pa-test-harness-core", features = ["mocks"] }

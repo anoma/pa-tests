@@ -26,3 +26,4 @@ sha2.workspace = true
 
 [dev-dependencies]
 pa-test-harness-core = { path = "../pa-test-harness-core", features = ["mocks"] }
+pa-test-harness-evm-action-trivial = { path = "../pa-test-harness-evm-action-trivial" }

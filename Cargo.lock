@@ -4522,8 +4522,19 @@ dependencies = [
  "bincode",
  "hex",
  "pa-test-harness-core",
+ "pa-test-harness-evm-action-trivial",
  "risc0-zkvm",
  "sha2 0.11.0",
+]
+
+[[package]]
+name = "pa-test-harness-evm-action-trivial"
+version = "2.0.0-rc2"
+dependencies = [
+ "anoma-rm-risc0",
+ "anyhow",
+ "pa-test-harness-core",
+ "risc0-zkvm",
 ]
 
 [[package]]
