@@ -6,7 +6,7 @@ members = [
   "crates/transfer_web",
   "crates/transfer_orchestrator",
   "crates/transfer_benchmark",
-  "crates/pa-integration-test-harness",
+  "crates/testing/pa-integration-test-harness",
 ]
 resolver = "3"
 
