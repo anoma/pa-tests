@@ -7,7 +7,7 @@ use pa_test_harness_evm_action_trivial::{
 use rstest::*;
 
 #[rstest]
-#[case(EvmIntegrationEnv::setup())]
+#[case::integration_test(EvmIntegrationEnv::setup())]
 #[tokio::test]
 async fn trivial_happy_flow<Env: Environment>(
     #[future(awt)]
@@ -30,7 +30,7 @@ async fn trivial_happy_flow<Env: Environment>(
 }
 
 #[rstest]
-#[case(EvmIntegrationEnv::setup())]
+#[case::integration_test(EvmIntegrationEnv::setup())]
 #[tokio::test]
 #[should_panic(expected = "left: 1\n right: 0")]
 async fn trivial_negative_flow_quantity_must_be_zero<Env: Environment>(
@@ -47,7 +47,7 @@ async fn trivial_negative_flow_quantity_must_be_zero<Env: Environment>(
 }
 
 #[rstest]
-#[case(EvmIntegrationEnv::setup())]
+#[case::integration_test(EvmIntegrationEnv::setup())]
 #[tokio::test]
 #[should_panic(expected = "assertion failed: self.resource.is_ephemeral")]
 async fn trivial_negative_flow_resource_must_be_ephemeral<Env: Environment>(
