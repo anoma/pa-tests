@@ -1,4 +1,5 @@
 use alloy::primitives::Address;
+use anyhow::Context;
 use pa_test_harness_core::environment::Environment;
 use pa_test_harness_core::environment::State;
 use pa_test_harness_core::environment::StateBuilder;
@@ -20,7 +21,10 @@ where
 
 #[inline]
 pub fn erc20_address_in_state(state: &State, symbol: &str) -> anyhow::Result<Address> {
-    state.get::<Address>(&erc20_addr_key(symbol)).copied()
+    state
+        .get::<Address>(&erc20_addr_key(symbol))
+        .copied()
+        .with_context(|| format!("failed to look-up {symbol} ERC-20 in state"))
 }
 
 #[cfg(test)]
