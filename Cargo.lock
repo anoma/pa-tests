@@ -4535,6 +4535,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "pa-test-harness-evm-mock-permit2"
+version = "2.0.0-rc2"
+dependencies = [
+ "alloy",
+ "anyhow",
+ "pa-test-harness-core",
+ "tokio",
+]
+
+[[package]]
 name = "parity-scale-codec"
 version = "3.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
