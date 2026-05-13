@@ -4,7 +4,7 @@ use pa_test_harness_core::environment::Environment;
 use pa_test_harness_core::environment::State;
 use pa_test_harness_core::environment::StateBuilder;
 
-use crate::keys::erc20_addr_key;
+use crate::state::keys::erc20_addr_key;
 
 #[inline]
 pub fn insert_erc20_address(builder: &mut StateBuilder, symbol: &str, address: Address) {

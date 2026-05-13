@@ -3,7 +3,7 @@ use alloy::primitives::U256;
 use alloy::providers::Provider;
 use alloy::sol;
 
-use crate::addresses::insert_erc20_address;
+use crate::state::addresses::insert_erc20_address;
 
 sol!(
     #[allow(missing_docs)]

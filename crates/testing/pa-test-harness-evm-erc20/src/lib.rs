@@ -1,5 +1,4 @@
-pub mod addresses;
-pub mod keys;
+pub mod state;
 
 #[cfg(feature = "example-erc20-bindings")]
 pub mod example_erc20_bindings;
