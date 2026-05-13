@@ -1,7 +1,5 @@
 use alloy::node_bindings::Anvil;
 use alloy::node_bindings::AnvilInstance;
-use alloy::primitives::B256;
-use alloy::primitives::Bytes;
 use alloy::primitives::b256;
 use alloy::primitives::utils::parse_ether;
 use alloy::providers::DynProvider;
@@ -9,8 +7,6 @@ use alloy::providers::Provider;
 use alloy::providers::ProviderBuilder;
 use alloy::providers::ext::AnvilApi;
 use alloy_chains::NamedChain;
-use anoma_pa_evm_bindings::generated::protocol_adapter::Compliance;
-use anoma_pa_evm_bindings::generated::protocol_adapter::Logic;
 use anoma_pa_evm_bindings::generated::protocol_adapter::ProtocolAdapter as PaContract;
 use anoma_rm_risc0::action::Action;
 use anoma_rm_risc0::action_tree::MerkleTree as ArmTree;
@@ -18,7 +14,6 @@ use anoma_rm_risc0::compliance::ComplianceInstance;
 use anoma_rm_risc0::compliance_unit::ComplianceUnit;
 use anoma_rm_risc0::delta_proof::DeltaWitness;
 use anoma_rm_risc0::logic_instance::LogicInstance;
-use anoma_rm_risc0::logic_proof::LogicVerifier;
 use anoma_rm_risc0::logic_proof::LogicVerifierInputs;
 use anoma_rm_risc0::merkle_path::MerklePath;
 use anoma_rm_risc0::transaction::{Delta, Transaction as ArmTxn};
@@ -154,8 +149,7 @@ impl CoreProtocolAdapter for ProtocolAdapter {
     async fn execute(&mut self, transaction: Self::Transaction) -> anyhow::Result<()> {
         let created_commitments: Vec<Digest> = transaction.created_commitments()?.collect();
         let tx = transaction.arm_txn;
-        let delta_bytes = delta_proof_bytes_from_witness(&tx)?;
-        let pa_tx = to_protocol_adapter_transaction(&tx.actions, delta_bytes, None)?;
+        let pa_tx: PaContract::Transaction = tx.into();
 
         execute_on_pa(&self.pa, pa_tx).await?;
 
@@ -220,168 +214,6 @@ impl From<Transaction> for ArmTxn {
     #[inline]
     fn from(transaction: Transaction) -> Self {
         transaction.arm_txn
-    }
-}
-
-fn delta_proof_bytes_from_witness(tx: &ArmTxn) -> anyhow::Result<Vec<u8>> {
-    let proved = tx.clone().generate_delta_proof()?;
-    let bytes = match proved.delta_proof {
-        Delta::Proof(proof) => proof.to_bytes().to_vec(),
-        Delta::Witness(_) => {
-            return Err(anyhow::anyhow!(
-                "delta proof generation returned witness unexpectedly"
-            ));
-        }
-    };
-    Ok(bytes)
-}
-
-fn to_protocol_adapter_transaction(
-    actions: &[Action],
-    delta_proof: Vec<u8>,
-    aggregation_proof: Option<Vec<u8>>,
-) -> anyhow::Result<PaContract::Transaction> {
-    let evm_actions = actions
-        .iter()
-        .map(to_pa_action)
-        .collect::<anyhow::Result<Vec<_>>>()?;
-
-    Ok(PaContract::Transaction {
-        actions: evm_actions,
-        deltaProof: Bytes::from(delta_proof),
-        aggregationProof: Bytes::from(aggregation_proof.unwrap_or_default()),
-    })
-}
-
-fn to_pa_action(action: &Action) -> anyhow::Result<PaContract::Action> {
-    let logic_inputs = build_logic_inputs(action)?;
-    let compliance_inputs = action
-        .compliance_units
-        .iter()
-        .map(to_pa_compliance)
-        .collect::<anyhow::Result<Vec<_>>>()?;
-
-    Ok(PaContract::Action {
-        logicVerifierInputs: logic_inputs,
-        complianceVerifierInputs: compliance_inputs,
-    })
-}
-
-fn build_logic_inputs(action: &Action) -> anyhow::Result<Vec<Logic::VerifierInput>> {
-    let compliance_instances = action
-        .compliance_units
-        .iter()
-        .map(ComplianceUnit::get_instance)
-        .collect::<Result<Vec<ComplianceInstance>, _>>()?;
-
-    let tags = compliance_instances
-        .iter()
-        .flat_map(|instance| vec![instance.consumed_nullifier, instance.created_commitment])
-        .collect::<Vec<_>>();
-    let logics = compliance_instances
-        .iter()
-        .flat_map(|instance| vec![instance.consumed_logic_ref, instance.created_logic_ref])
-        .collect::<Vec<_>>();
-
-    if tags.len() != action.logic_verifier_inputs.len() {
-        anyhow::bail!(
-            "logic input count mismatch: tags={}, inputs={}",
-            tags.len(),
-            action.logic_verifier_inputs.len()
-        );
-    }
-
-    let action_tree_root = ArmTree::new(tags.clone()).root()?;
-    let mut out = Vec::with_capacity(tags.len());
-
-    for (index, (tag, expected_vk)) in tags.iter().zip(logics.iter()).enumerate() {
-        let input = action
-            .logic_verifier_inputs
-            .iter()
-            .find(|input| &input.tag == tag)
-            .ok_or_else(|| anyhow::anyhow!("logic input tag not found"))?;
-
-        if input.verifying_key != *expected_vk {
-            anyhow::bail!("logic verifying key mismatch");
-        }
-
-        let is_consumed = index % 2 == 0;
-        let verifier = input
-            .clone()
-            .to_logic_verifier(is_consumed, action_tree_root)?;
-        out.push(to_pa_logic(verifier)?);
-    }
-
-    Ok(out)
-}
-
-fn to_pa_logic(logic: LogicVerifier) -> anyhow::Result<Logic::VerifierInput> {
-    let instance = logic.get_instance()?;
-    let resource_payload = instance
-        .app_data
-        .resource_payload
-        .into_iter()
-        .map(to_pa_blob)
-        .collect();
-    let discovery_payload = instance
-        .app_data
-        .discovery_payload
-        .into_iter()
-        .map(to_pa_blob)
-        .collect();
-    let external_payload = instance
-        .app_data
-        .external_payload
-        .into_iter()
-        .map(to_pa_blob)
-        .collect();
-    let application_payload = instance
-        .app_data
-        .application_payload
-        .into_iter()
-        .map(to_pa_blob)
-        .collect();
-
-    Ok(Logic::VerifierInput {
-        tag: B256::from_slice(instance.tag.as_bytes()),
-        verifyingKey: B256::from_slice(logic.verifying_key.as_bytes()),
-        appData: Logic::AppData {
-            resourcePayload: resource_payload,
-            discoveryPayload: discovery_payload,
-            externalPayload: external_payload,
-            applicationPayload: application_payload,
-        },
-        proof: Bytes::from(logic.proof.unwrap_or_default()),
-    })
-}
-
-fn to_pa_compliance(compliance: &ComplianceUnit) -> anyhow::Result<Compliance::VerifierInput> {
-    let instance = compliance.get_instance()?;
-
-    Ok(Compliance::VerifierInput {
-        proof: Bytes::from(compliance.proof.clone().unwrap_or_default()),
-        instance: Compliance::Instance {
-            consumed: Compliance::ConsumedRefs {
-                nullifier: B256::from_slice(instance.consumed_nullifier.as_bytes()),
-                logicRef: B256::from_slice(instance.consumed_logic_ref.as_bytes()),
-                commitmentTreeRoot: B256::from_slice(
-                    instance.consumed_commitment_tree_root.as_bytes(),
-                ),
-            },
-            created: Compliance::CreatedRefs {
-                commitment: B256::from_slice(instance.created_commitment.as_bytes()),
-                logicRef: B256::from_slice(instance.created_logic_ref.as_bytes()),
-            },
-            unitDeltaX: B256::from_slice(anoma_rm_risc0::utils::words_to_bytes(&instance.delta_x)),
-            unitDeltaY: B256::from_slice(anoma_rm_risc0::utils::words_to_bytes(&instance.delta_y)),
-        },
-    })
-}
-
-fn to_pa_blob(blob: anoma_rm_risc0::logic_instance::ExpirableBlob) -> Logic::ExpirableBlob {
-    Logic::ExpirableBlob {
-        deletionCriterion: blob.deletion_criterion as u8,
-        blob: Bytes::from(anoma_rm_risc0::utils::words_to_bytes(&blob.blob).to_vec()),
     }
 }
 
@@ -595,6 +427,7 @@ fn verifying_key_for_witness(witness: &impl LogicWitness) -> anoma_rm_risc0::Dig
 
 #[cfg(test)]
 mod tests {
+    use anoma_pa_evm_bindings::generated::protocol_adapter::ProtocolAdapter as PaContract;
     use anoma_rm_risc0::compliance::ComplianceWitness;
     use anoma_rm_risc0::nullifier_key::NullifierKey;
     use anoma_rm_risc0::resource::Resource;
@@ -606,6 +439,16 @@ mod tests {
     #[test]
     fn constrain_trivial() {
         _ = Transaction::create(&build_trivial_action_witnesses_many(8)).unwrap();
+    }
+
+    #[test]
+    fn arm_txn_into_pa_tx_conversion_smoke() {
+        let tx = Transaction::create(&build_trivial_action_witnesses_many(2)).unwrap();
+        let arm_tx: ArmTxn = tx.into();
+
+        let pa_tx: PaContract::Transaction = arm_tx.into();
+        assert!(!pa_tx.actions.is_empty());
+        assert!(!pa_tx.deltaProof.is_empty());
     }
 
     fn build_trivial_action_witnesses_many(actions_count: usize) -> Vec<ActionWitnesses> {
