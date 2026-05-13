@@ -4520,6 +4520,7 @@ dependencies = [
  "anoma-rm-risc0",
  "anyhow",
  "bincode",
+ "hex",
  "pa-test-harness-core",
  "risc0-zkvm",
  "sha2 0.11.0",

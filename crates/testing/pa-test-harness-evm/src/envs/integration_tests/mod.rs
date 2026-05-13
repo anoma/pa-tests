@@ -84,7 +84,8 @@ impl CoreProtocolAdapter for ProtocolAdapter {
 
     async fn execute(&mut self, transaction: Self::Transaction) -> anyhow::Result<()> {
         let created_commitments: Vec<Digest> = transaction.created_commitments()?.collect();
-        let pa_tx: PaContract::Transaction = transaction.into();
+        let tx = transaction.arm_txn;
+        let pa_tx: PaContract::Transaction = tx.into();
 
         evm_execute::execute_on_pa(&self.pa, pa_tx).await?;
 
