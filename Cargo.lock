@@ -4508,7 +4508,6 @@ dependencies = [
  "anoma-pa-evm-bindings",
  "anoma-rm-risc0",
  "anyhow",
- "async-trait",
  "bincode",
  "risc0-zkvm",
  "sha2 0.11.0",
