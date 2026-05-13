@@ -6,13 +6,19 @@ use crate::environment::Environment;
 use crate::environment::ProtocolAdapter;
 use crate::environment::Prover;
 use crate::environment::State;
+use crate::environment::Transaction;
 use crate::witness::ActionWitnesses;
+
+impl Transaction for () {
+    fn created_commitments(&self) -> anyhow::Result<impl Iterator<Item = Digest> + '_> {
+        Ok(std::iter::empty())
+    }
+}
 
 mockall::mock! {
     pub CommitmentTree {}
 
     impl CommitmentTree for CommitmentTree {
-        fn append(&mut self, commitment: Digest) -> anyhow::Result<()>;
         fn root(&self) -> anyhow::Result<Digest>;
         fn path_to(&self, leaf: Digest) -> anyhow::Result<MerklePath>;
     }
@@ -27,7 +33,6 @@ mockall::mock! {
 
         async fn execute(&mut self, transaction: ()) -> anyhow::Result<()>;
         fn commitment_tree(&self) -> &MockCommitmentTree;
-        fn commitment_tree_mut(&mut self) -> &mut MockCommitmentTree;
     }
 }
 

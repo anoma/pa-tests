@@ -8,10 +8,17 @@ use anyhow::Context;
 
 use crate::witness::ActionWitnesses;
 
+/// Transaction produced by the harness prover and consumed by the harness
+/// protocol adapter.
+pub trait Transaction {
+    /// Commitments created by successful execution of this transaction.
+    fn created_commitments(&self) -> anyhow::Result<impl Iterator<Item = Digest> + '_>;
+}
+
 /// Environment used to test the protocol adapter.
 pub trait Environment {
     /// ARM transaction.
-    type Transaction;
+    type Transaction: Transaction;
 
     /// Protocol adapter.
     type ProtocolAdapter: ProtocolAdapter<Transaction = Self::Transaction>;
@@ -38,7 +45,7 @@ pub trait Environment {
 /// Protocol adapter abstraction.
 pub trait ProtocolAdapter {
     /// ARM transaction.
-    type Transaction;
+    type Transaction: Transaction;
 
     /// Commitment tree.
     type CommitmentTree: CommitmentTree;
@@ -64,7 +71,7 @@ pub trait CommitmentTree {
 /// Transaction prover.
 pub trait Prover {
     /// ARM transaction.
-    type Transaction;
+    type Transaction: Transaction;
 
     /// Prove an ARM transaction.
     ///

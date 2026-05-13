@@ -11,7 +11,7 @@ use alloy::providers::ext::AnvilApi;
 use alloy_chains::NamedChain;
 use anoma_pa_evm_bindings::generated::protocol_adapter::Compliance;
 use anoma_pa_evm_bindings::generated::protocol_adapter::Logic;
-use anoma_pa_evm_bindings::generated::protocol_adapter::ProtocolAdapter;
+use anoma_pa_evm_bindings::generated::protocol_adapter::ProtocolAdapter as PaContract;
 use anoma_rm_risc0::action::Action;
 use anoma_rm_risc0::action_tree::MerkleTree as ArmTree;
 use anoma_rm_risc0::compliance::ComplianceInstance;
@@ -23,12 +23,13 @@ use anoma_rm_risc0::logic_proof::LogicVerifierInputs;
 use anoma_rm_risc0::merkle_path::MerklePath;
 use anoma_rm_risc0::transaction::{Delta, Transaction as ArmTxn};
 use anyhow::Context;
-use pa_test_harness_core::environment::CommitmentTree as CommitmentTreeTrait;
-use pa_test_harness_core::environment::Environment as EnvironmentTrait;
-use pa_test_harness_core::environment::ProtocolAdapter as ProtocolAdapterTrait;
-use pa_test_harness_core::environment::Prover as ProverTrait;
+use pa_test_harness_core::environment::CommitmentTree as CoreCommitmentTree;
+use pa_test_harness_core::environment::Environment as CoreEnvironment;
+use pa_test_harness_core::environment::ProtocolAdapter as CoreProtocolAdapter;
+use pa_test_harness_core::environment::Prover as CoreProver;
 use pa_test_harness_core::environment::State;
 use pa_test_harness_core::environment::StateBuilder;
+use pa_test_harness_core::environment::Transaction as CoreTransaction;
 use pa_test_harness_core::witness::{ActionWitnesses, LogicWitness};
 use risc0_zkvm::{Digest, Groth16Receipt, InnerReceipt, MaybePruned};
 use sha2::{Digest as _, Sha256};
@@ -38,23 +39,30 @@ use crate::state::actors::insert_default_signer;
 use crate::state::chains::insert_chain_id;
 use crate::state::pa::insert_pa_address;
 
-pub struct IntegrationTestEnvironment {
-    _anvil: AnvilInstance,
-    state: State,
-    prover: IntegrationTestProver,
-    protocol_adapter: IntegrationTestProtocolAdapter,
+/// Integration test execution environment.
+///
+/// Setup contract:
+/// - All fields on this environment and its nested structures are public on purpose.
+/// - Setup code should mutate/inspect the concrete environment directly.
+/// - Test execution code should accept `impl pa_test_harness_core::environment::Environment`
+///   and use typed state helpers instead of concrete fields.
+pub struct Environment {
+    pub anvil: AnvilInstance,
+    pub state: State,
+    pub prover: Prover,
+    pub protocol_adapter: ProtocolAdapter,
 }
 
-pub struct IntegrationTestProtocolAdapter {
-    pa: ProtocolAdapter::ProtocolAdapterInstance<DynProvider>,
-    commitment_tree: IntegrationTestCommitmentTree,
+pub struct ProtocolAdapter {
+    pub pa: PaContract::ProtocolAdapterInstance<DynProvider>,
+    pub commitment_tree: CommitmentTree,
 }
 
 #[derive(Default)]
-pub struct IntegrationTestProver;
+pub struct Prover;
 
 #[derive(Default)]
-pub struct IntegrationTestCommitmentTree {
+pub struct CommitmentTree {
     leaves: Vec<Digest>,
 }
 
@@ -62,22 +70,35 @@ pub struct Transaction {
     arm_txn: ArmTxn,
 }
 
-impl IntegrationTestEnvironment {
-    #[cfg(all(feature = "pa-bindings", feature = "mock-risc0-bindings"))]
+impl Environment {
     pub async fn setup() -> anyhow::Result<Self> {
-        let chain = LocalChain::spawn().await?;
+        let anvil = Anvil::new().spawn();
 
-        let pa_address = deploy_protocol_adapter(&chain.provider).await?;
-        let pa = protocol_adapter(pa_address, chain.provider.clone());
+        let signer = alloy::signers::local::PrivateKeySigner::from_bytes(&b256!(
+            "7ad4b84636a3fa408827e7202f6da39287bbf099d1fab6250d3b56e03e77586b"
+        ))?;
+        let deployer = signer.address();
 
-        let chain_id = chain.provider.get_chain_id().await?;
+        let provider = ProviderBuilder::new()
+            .wallet(signer)
+            .connect_http(anvil.endpoint_url())
+            .erased();
+
+        provider
+            .anvil_set_balance(deployer, parse_ether("100").expect("parse ether"))
+            .await?;
+
+        let pa_address = deploy_protocol_adapter(&provider).await?;
+        let pa = protocol_adapter(pa_address, provider.clone());
+
+        let chain_id = provider.get_chain_id().await?;
         let named_chain = NamedChain::try_from(chain_id)
-            .map_err(|_| anyhow::anyhow!("unsupported chain id {chain_id}"))?;
+            .with_context(|| format!("unsupported chain id {chain_id}"))?;
 
         let state = {
             let mut builder = StateBuilder::new();
 
-            insert_default_signer(&mut builder, chain.provider.clone());
+            insert_default_signer(&mut builder, provider.clone());
             insert_chain_id(&mut builder, named_chain);
             insert_pa_address(&mut builder, pa_address);
 
@@ -85,27 +106,25 @@ impl IntegrationTestEnvironment {
         };
 
         Ok(Self {
-            _anvil: chain.anvil,
+            anvil,
             state,
-            prover: IntegrationTestProver,
-            protocol_adapter: IntegrationTestProtocolAdapter {
+            prover: Prover,
+            protocol_adapter: ProtocolAdapter {
                 pa,
-                commitment_tree: IntegrationTestCommitmentTree::default(),
+                commitment_tree: CommitmentTree::default(),
             },
         })
     }
 
-    pub fn protocol_adapter_instance(
-        &self,
-    ) -> &ProtocolAdapter::ProtocolAdapterInstance<DynProvider> {
+    pub fn protocol_adapter_instance(&self) -> &PaContract::ProtocolAdapterInstance<DynProvider> {
         &self.protocol_adapter.pa
     }
 }
 
-impl EnvironmentTrait for IntegrationTestEnvironment {
+impl CoreEnvironment for Environment {
     type Transaction = Transaction;
-    type ProtocolAdapter = IntegrationTestProtocolAdapter;
-    type Prover = IntegrationTestProver;
+    type ProtocolAdapter = ProtocolAdapter;
+    type Prover = Prover;
 
     fn prover(&self) -> &Self::Prover {
         &self.prover
@@ -128,23 +147,19 @@ impl EnvironmentTrait for IntegrationTestEnvironment {
     }
 }
 
-impl ProtocolAdapterTrait for IntegrationTestProtocolAdapter {
+impl CoreProtocolAdapter for ProtocolAdapter {
     type Transaction = Transaction;
-    type CommitmentTree = IntegrationTestCommitmentTree;
+    type CommitmentTree = CommitmentTree;
 
     async fn execute(&mut self, transaction: Self::Transaction) -> anyhow::Result<()> {
+        let created_commitments: Vec<Digest> = transaction.created_commitments()?.collect();
         let tx = transaction.arm_txn;
         let delta_bytes = delta_proof_bytes_from_witness(&tx)?;
         let pa_tx = to_protocol_adapter_transaction(&tx.actions, delta_bytes, None)?;
 
         execute_on_pa(&self.pa, pa_tx).await?;
 
-        for action in &tx.actions {
-            for unit in &action.compliance_units {
-                let instance = unit.get_instance()?;
-                self.commitment_tree.append(instance.created_commitment)?;
-            }
-        }
+        self.commitment_tree.leaves.extend(created_commitments);
 
         Ok(())
     }
@@ -152,13 +167,9 @@ impl ProtocolAdapterTrait for IntegrationTestProtocolAdapter {
     fn commitment_tree(&self) -> &Self::CommitmentTree {
         &self.commitment_tree
     }
-
-    fn commitment_tree_mut(&mut self) -> &mut Self::CommitmentTree {
-        &mut self.commitment_tree
-    }
 }
 
-impl ProverTrait for IntegrationTestProver {
+impl CoreProver for Prover {
     type Transaction = Transaction;
 
     async fn prove(&self, actions: &[ActionWitnesses]) -> anyhow::Result<Self::Transaction> {
@@ -166,12 +177,7 @@ impl ProverTrait for IntegrationTestProver {
     }
 }
 
-impl CommitmentTreeTrait for IntegrationTestCommitmentTree {
-    fn append(&mut self, commitment: Digest) -> anyhow::Result<()> {
-        self.leaves.push(commitment);
-        Ok(())
-    }
-
+impl CoreCommitmentTree for CommitmentTree {
     fn root(&self) -> anyhow::Result<Digest> {
         if self.leaves.is_empty() {
             return Ok(*anoma_rm_risc0::compliance::INITIAL_ROOT);
@@ -182,6 +188,24 @@ impl CommitmentTreeTrait for IntegrationTestCommitmentTree {
 
     fn path_to(&self, leaf: Digest) -> anyhow::Result<MerklePath> {
         Ok(ArmTree::new(self.leaves.clone()).generate_path(&leaf)?)
+    }
+}
+
+impl CoreTransaction for Transaction {
+    fn created_commitments(&self) -> anyhow::Result<impl Iterator<Item = Digest> + '_> {
+        let commitments = self
+            .arm_txn
+            .actions
+            .iter()
+            .flat_map(|action| {
+                action.compliance_units.iter().map(|unit| {
+                    unit.get_instance()
+                        .map(|instance| instance.created_commitment)
+                })
+            })
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(commitments.into_iter())
     }
 }
 
@@ -196,33 +220,6 @@ impl From<Transaction> for ArmTxn {
     #[inline]
     fn from(transaction: Transaction) -> Self {
         transaction.arm_txn
-    }
-}
-
-struct LocalChain {
-    anvil: AnvilInstance,
-    provider: DynProvider,
-}
-
-impl LocalChain {
-    async fn spawn() -> anyhow::Result<Self> {
-        let anvil = Anvil::new().spawn();
-
-        let signer = alloy::signers::local::PrivateKeySigner::from_bytes(&b256!(
-            "7ad4b84636a3fa408827e7202f6da39287bbf099d1fab6250d3b56e03e77586b"
-        ))?;
-        let deployer = signer.address();
-
-        let provider = ProviderBuilder::new()
-            .wallet(signer)
-            .connect_http(anvil.endpoint_url())
-            .erased();
-
-        provider
-            .anvil_set_balance(deployer, parse_ether("100").expect("parse ether"))
-            .await?;
-
-        Ok(Self { anvil, provider })
     }
 }
 
@@ -243,20 +240,20 @@ fn to_protocol_adapter_transaction(
     actions: &[Action],
     delta_proof: Vec<u8>,
     aggregation_proof: Option<Vec<u8>>,
-) -> anyhow::Result<ProtocolAdapter::Transaction> {
+) -> anyhow::Result<PaContract::Transaction> {
     let evm_actions = actions
         .iter()
         .map(to_pa_action)
         .collect::<anyhow::Result<Vec<_>>>()?;
 
-    Ok(ProtocolAdapter::Transaction {
+    Ok(PaContract::Transaction {
         actions: evm_actions,
         deltaProof: Bytes::from(delta_proof),
         aggregationProof: Bytes::from(aggregation_proof.unwrap_or_default()),
     })
 }
 
-fn to_pa_action(action: &Action) -> anyhow::Result<ProtocolAdapter::Action> {
+fn to_pa_action(action: &Action) -> anyhow::Result<PaContract::Action> {
     let logic_inputs = build_logic_inputs(action)?;
     let compliance_inputs = action
         .compliance_units
@@ -264,7 +261,7 @@ fn to_pa_action(action: &Action) -> anyhow::Result<ProtocolAdapter::Action> {
         .map(to_pa_compliance)
         .collect::<anyhow::Result<Vec<_>>>()?;
 
-    Ok(ProtocolAdapter::Action {
+    Ok(PaContract::Action {
         logicVerifierInputs: logic_inputs,
         complianceVerifierInputs: compliance_inputs,
     })
@@ -389,19 +386,15 @@ fn to_pa_blob(blob: anoma_rm_risc0::logic_instance::ExpirableBlob) -> Logic::Exp
 }
 
 async fn execute_on_pa(
-    pa: &ProtocolAdapter::ProtocolAdapterInstance<DynProvider>,
-    tx: ProtocolAdapter::Transaction,
+    pa: &PaContract::ProtocolAdapterInstance<DynProvider>,
+    tx: PaContract::Transaction,
 ) -> anyhow::Result<alloy::rpc::types::TransactionReceipt> {
-    if let Err(err) = pa.execute(tx.clone()).call().await {
-        return Err(anyhow::anyhow!(
-            "protocol adapter call reverted before send: {err:?}"
-        ));
-    }
-
     let receipt = pa.execute(tx).send().await?.get_receipt().await?;
+
     if !receipt.status() {
         return Err(anyhow::anyhow!("protocol adapter execution failed"));
     }
+
     Ok(receipt)
 }
 
@@ -568,7 +561,7 @@ fn constrain_txn(action_witnesses: &[ActionWitnesses]) -> anyhow::Result<Transac
     );
     let arm_txn = ArmTxn::create(actions, delta)
         .generate_delta_proof()
-        .context("failed to gelerate delta proof")?;
+        .context("failed to generate delta proof")?;
 
     Ok(Transaction { arm_txn })
 }
