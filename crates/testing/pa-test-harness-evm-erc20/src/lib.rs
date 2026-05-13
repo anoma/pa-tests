@@ -3,3 +3,6 @@ pub mod keys;
 
 #[cfg(feature = "ierc20-bindings")]
 pub mod ierc20_bindings;
+
+#[cfg(feature = "weth-bindings")]
+pub mod weth_bindings;

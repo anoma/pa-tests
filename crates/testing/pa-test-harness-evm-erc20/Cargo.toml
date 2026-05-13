@@ -9,6 +9,7 @@ version.workspace = true
 [features]
 default = []
 ierc20-bindings = []
+weth-bindings = []
 
 [dependencies]
 pa-test-harness-core = { path = "../pa-test-harness-core" }
