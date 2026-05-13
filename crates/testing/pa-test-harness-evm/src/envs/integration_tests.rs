@@ -23,13 +23,12 @@ pub struct Environment {
 }
 
 pub struct Transaction {
-    actions: Vec<ActionWitnesses>,
     arm_txn: ArmTxn,
 }
 
 impl Transaction {
     #[inline]
-    pub fn create(witnesses: Vec<ActionWitnesses>) -> anyhow::Result<Self> {
+    pub fn create(witnesses: &[ActionWitnesses]) -> anyhow::Result<Self> {
         constrain_txn(witnesses)
     }
 }
@@ -84,7 +83,7 @@ fn journal_digest_from_words(words: &[u32]) -> Digest {
     raw.into()
 }
 
-fn constrain_txn(action_witnesses: Vec<ActionWitnesses>) -> anyhow::Result<Transaction> {
+fn constrain_txn(action_witnesses: &[ActionWitnesses]) -> anyhow::Result<Transaction> {
     let mut actions = Vec::with_capacity(action_witnesses.len());
     let mut rcvs = Vec::with_capacity(action_witnesses.len());
 
@@ -206,10 +205,7 @@ fn constrain_txn(action_witnesses: Vec<ActionWitnesses>) -> anyhow::Result<Trans
         .generate_delta_proof()
         .context("failed to gelerate delta proof")?;
 
-    Ok(Transaction {
-        actions: action_witnesses,
-        arm_txn,
-    })
+    Ok(Transaction { arm_txn })
 }
 
 fn constrain_logic_witness(
@@ -251,7 +247,7 @@ mod tests {
 
     #[test]
     fn constrain_trivial() {
-        _ = Transaction::create(build_trivial_action_witnesses_many(8)).unwrap();
+        _ = Transaction::create(&build_trivial_action_witnesses_many(8)).unwrap();
     }
 
     fn build_trivial_action_witnesses_many(actions_count: usize) -> Vec<ActionWitnesses> {
