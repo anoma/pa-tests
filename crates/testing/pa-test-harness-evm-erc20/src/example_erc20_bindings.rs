@@ -2,6 +2,7 @@ use alloy::primitives::Address;
 use alloy::primitives::U256;
 use alloy::providers::Provider;
 use alloy::sol;
+use anyhow::Context;
 
 use crate::state::addresses::insert_erc20_address;
 
@@ -25,7 +26,9 @@ pub async fn deploy_example_erc20<P>(provider: P) -> anyhow::Result<Address>
 where
     P: Provider,
 {
-    let deployed = ERC20Example::deploy(provider).await?;
+    let deployed = ERC20Example::deploy(provider)
+        .await
+        .context("failed to deploy ERC20Example")?;
 
     Ok(*deployed.address())
 }
@@ -38,14 +41,18 @@ pub async fn deploy_and_mint_example_erc20<P>(
 where
     P: Provider + Clone,
 {
-    let deployed = ERC20Example::deploy(provider.clone()).await?;
+    let deployed = ERC20Example::deploy(provider.clone())
+        .await
+        .context("failed to deploy ERC20Example")?;
 
     deployed
         .mint(mint_to, amount)
         .send()
-        .await?
+        .await
+        .context("failed to submit ERC20Example mint transaction")?
         .get_receipt()
-        .await?;
+        .await
+        .context("failed to fetch ERC20Example mint receipt")?;
 
     Ok(*deployed.address())
 }

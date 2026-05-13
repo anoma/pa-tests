@@ -2,6 +2,7 @@ use alloy::primitives::Address;
 use alloy::primitives::U256;
 use alloy::providers::Provider;
 use alloy::sol;
+use anyhow::Context;
 
 use crate::state::addresses::insert_erc20_address;
 
@@ -25,7 +26,9 @@ pub async fn deploy_weth<P>(provider: P) -> anyhow::Result<Address>
 where
     P: Provider,
 {
-    let deployed = WETH9::deploy(provider).await?;
+    let deployed = WETH9::deploy(provider)
+        .await
+        .context("failed to deploy WETH9")?;
 
     Ok(*deployed.address())
 }
@@ -38,22 +41,28 @@ pub async fn deploy_and_mint_weth<P>(
 where
     P: Provider + Clone,
 {
-    let deployed = WETH9::deploy(provider.clone()).await?;
+    let deployed = WETH9::deploy(provider.clone())
+        .await
+        .context("failed to deploy WETH9")?;
 
     deployed
         .deposit()
         .value(amount)
         .send()
-        .await?
+        .await
+        .context("failed to submit WETH9 deposit transaction")?
         .get_receipt()
-        .await?;
+        .await
+        .context("failed to fetch WETH9 deposit receipt")?;
 
     deployed
         .transfer(mint_to, amount)
         .send()
-        .await?
+        .await
+        .context("failed to submit WETH9 transfer transaction")?
         .get_receipt()
-        .await?;
+        .await
+        .context("failed to fetch WETH9 transfer receipt")?;
 
     Ok(*deployed.address())
 }

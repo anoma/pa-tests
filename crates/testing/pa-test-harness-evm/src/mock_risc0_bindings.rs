@@ -1,6 +1,7 @@
 use alloy::primitives::Address;
 use alloy::providers::DynProvider;
 use alloy::sol;
+use anyhow::Context;
 
 pub const MOCK_VERIFIER_SELECTOR: [u8; 4] = [0xFF, 0xFF, 0xFF, 0xFF];
 
@@ -42,7 +43,9 @@ pub async fn deploy_mock_risc0_stack(
 ) -> anyhow::Result<MockRisc0Stack> {
     let selector = alloy::primitives::FixedBytes::<4>::from(MOCK_VERIFIER_SELECTOR);
 
-    let mock_verifier_deployed = MockRiscZeroVerifier::deploy(provider.clone(), selector).await?;
+    let mock_verifier_deployed = MockRiscZeroVerifier::deploy(provider.clone(), selector)
+        .await
+        .context("failed to deploy mock verifier")?;
     let mock_verifier = MockRiscZeroVerifier::MockRiscZeroVerifierInstance::new(
         *mock_verifier_deployed.address(),
         provider.clone(),
@@ -53,14 +56,17 @@ pub async fn deploy_mock_risc0_stack(
         *mock_verifier.address(),
         guardian,
     )
-    .await?;
+    .await
+    .context("failed to deploy mock verifier emergency stop")?;
     let emergency_stop =
         MockRiscZeroVerifierEmergencyStop::MockRiscZeroVerifierEmergencyStopInstance::new(
             *emergency_stop_deployed.address(),
             provider.clone(),
         );
 
-    let router_deployed = MockRiscZeroVerifierRouter::deploy(provider.clone(), guardian).await?;
+    let router_deployed = MockRiscZeroVerifierRouter::deploy(provider.clone(), guardian)
+        .await
+        .context("failed to deploy mock verifier router")?;
     let router = MockRiscZeroVerifierRouter::MockRiscZeroVerifierRouterInstance::new(
         *router_deployed.address(),
         provider.clone(),
@@ -69,9 +75,11 @@ pub async fn deploy_mock_risc0_stack(
     router
         .addVerifier(selector, *emergency_stop.address())
         .send()
-        .await?
+        .await
+        .context("failed to submit addVerifier call to mock verifier router")?
         .get_receipt()
-        .await?;
+        .await
+        .context("failed to fetch addVerifier receipt from mock verifier router")?;
 
     Ok(MockRisc0Stack {
         router,

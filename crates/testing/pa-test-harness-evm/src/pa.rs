@@ -25,12 +25,15 @@ pub async fn deploy_protocol_adapter(
 
     let fee_recipient = default_signer
         .get_accounts()
-        .await?
+        .await
+        .context("failed to retrieve signer accounts")?
         .into_iter()
         .next()
         .context("failed to retrieve default signer account")?;
 
-    let mock_risc0 = deploy_mock_risc0_stack(default_signer, fee_recipient).await?;
+    let mock_risc0 = deploy_mock_risc0_stack(default_signer, fee_recipient)
+        .await
+        .context("failed to deploy mock Risc0 verifier stack")?;
     let selector = FixedBytes::<4>::from(MOCK_VERIFIER_SELECTOR);
 
     let deployed = ProtocolAdapter::deploy(
@@ -39,7 +42,8 @@ pub async fn deploy_protocol_adapter(
         selector,
         fee_recipient,
     )
-    .await?;
+    .await
+    .context("failed to deploy protocol adapter")?;
 
     Ok(*deployed.address())
 }
