@@ -4507,6 +4507,7 @@ dependencies = [
  "anoma-pa-evm-bindings",
  "anoma-rm-risc0",
  "anyhow",
+ "mockall",
 ]
 
 [[package]]
@@ -4521,6 +4522,15 @@ dependencies = [
  "pa-test-harness-core",
  "risc0-zkvm",
  "sha2 0.11.0",
+]
+
+[[package]]
+name = "pa-test-harness-evm-erc20"
+version = "2.0.0-rc2"
+dependencies = [
+ "alloy",
+ "anyhow",
+ "pa-test-harness-core",
 ]
 
 [[package]]

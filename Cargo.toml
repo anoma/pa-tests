@@ -2,6 +2,7 @@
 members = [
   "crates/testing/pa-test-harness-core",
   "crates/testing/pa-test-harness-evm",
+  "crates/testing/pa-test-harness-evm-erc20",
 ]
 resolver = "3"
 

@@ -1,0 +1,20 @@
+[package]
+name = "pa-test-harness-evm-erc20"
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+readme.workspace = true
+version.workspace = true
+
+[features]
+default = []
+ierc20-bindings = []
+
+[dependencies]
+pa-test-harness-core = { path = "../pa-test-harness-core" }
+
+alloy.workspace = true
+anyhow.workspace = true
+
+[dev-dependencies]
+pa-test-harness-core = { path = "../pa-test-harness-core", features = ["mocks"] }
