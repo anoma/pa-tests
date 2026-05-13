@@ -36,7 +36,7 @@ impl Environment {
             )
             .await?;
 
-        let pa_address = deploy_protocol_adapter(&provider).await?;
+        let pa_address = deploy_protocol_adapter(&provider, deployer).await?;
         let pa = protocol_adapter(pa_address, provider.clone());
 
         let chain_id = provider.get_chain_id().await?;

@@ -16,20 +16,13 @@ where
 #[cfg(feature = "mock-risc0-bindings")]
 pub async fn deploy_protocol_adapter(
     default_signer: &alloy::providers::DynProvider,
+    fee_recipient: Address,
 ) -> anyhow::Result<Address> {
     use alloy::primitives::FixedBytes;
     use anyhow::Context;
 
     use crate::mock_risc0_bindings::MOCK_VERIFIER_SELECTOR;
     use crate::mock_risc0_bindings::deploy_mock_risc0_stack;
-
-    let fee_recipient = default_signer
-        .get_accounts()
-        .await
-        .context("failed to retrieve signer accounts")?
-        .into_iter()
-        .next()
-        .context("failed to retrieve default signer account")?;
 
     let mock_risc0 = deploy_mock_risc0_stack(default_signer, fee_recipient)
         .await
@@ -53,9 +46,19 @@ pub async fn deploy_and_insert_protocol_adapter(
     builder: &mut pa_test_harness_core::environment::StateBuilder,
     default_signer: &alloy::providers::DynProvider,
 ) -> anyhow::Result<Address> {
+    use anyhow::Context;
+
     use crate::state::pa::insert_pa_address;
 
-    let address = deploy_protocol_adapter(default_signer).await?;
+    let fee_recipient = default_signer
+        .get_accounts()
+        .await
+        .context("failed to retrieve signer accounts")?
+        .into_iter()
+        .next()
+        .context("failed to retrieve default signer account")?;
+
+    let address = deploy_protocol_adapter(default_signer, fee_recipient).await?;
 
     insert_pa_address(builder, address);
 
