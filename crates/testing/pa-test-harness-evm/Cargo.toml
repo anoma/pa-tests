@@ -10,9 +10,13 @@ version.workspace = true
 pa-test-harness-core = { path = "../pa-test-harness-core" }
 
 alloy = { workspace = true, features = ["sol-types"] }
+alloy-chains.workspace = true
 anoma-pa-evm-bindings.workspace = true
 anoma-rm-risc0.workspace = true
 anyhow.workspace = true
 bincode.workspace = true
 risc0-zkvm.workspace = true
 sha2.workspace = true
+
+[dev-dependencies]
+pa-test-harness-core = { path = "../pa-test-harness-core", features = ["mocks"] }

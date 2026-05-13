@@ -4515,6 +4515,7 @@ name = "pa-test-harness-evm"
 version = "2.0.0-rc2"
 dependencies = [
  "alloy",
+ "alloy-chains",
  "anoma-pa-evm-bindings",
  "anoma-rm-risc0",
  "anyhow",
