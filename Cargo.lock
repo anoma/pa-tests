@@ -4514,6 +4514,7 @@ dependencies = [
  "pa-test-harness-core",
  "pa-test-harness-evm",
  "pa-test-harness-evm-action-trivial",
+ "regex",
  "risc0-zkvm",
  "rstest",
  "tokio",
