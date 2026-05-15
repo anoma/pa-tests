@@ -103,6 +103,22 @@ impl StateBuilder {
         self.inner.insert(key.into(), Box::new(data));
     }
 
+    /// Get a reference to a [`State`].
+    #[inline]
+    pub fn as_state(&self) -> &State {
+        // SAFETY: `State` and `StateBuilder` are essentially the same type
+        // (same layout and elems)
+        unsafe { &*(self as *const _ as *const _) }
+    }
+
+    /// Get a mut reference to a [`State`].
+    #[inline]
+    pub fn as_state_mut(&mut self) -> &mut State {
+        // SAFETY: `State` and `StateBuilder` are essentially the same type
+        // (same layout and elems)
+        unsafe { &mut *(self as *mut _ as *mut _) }
+    }
+
     /// Finalize the [`State`].
     #[inline]
     pub fn finalize(self) -> State {
