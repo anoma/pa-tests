@@ -1,5 +1,7 @@
 use anyhow::Context;
-use pa_evm_tests::{EvmIntegrationEnv, commitment_root, execute_tx, prove_actions};
+use pa_evm_tests::{
+    EvmIntegrationEnv, Needle, commitment_root, execute_tx, expect_integration_panic, prove_actions,
+};
 use pa_test_harness_core::environment::Environment;
 use pa_test_harness_evm_action_trivial::{
     TrivialActionOverrides, build_action_with_overrides, build_actions,
@@ -30,36 +32,47 @@ async fn trivial_happy_flow<Env: Environment>(
 }
 
 #[rstest]
-#[case::integration_test(EvmIntegrationEnv::setup())]
+#[case::integration_test(
+    EvmIntegrationEnv::setup(),
+    expect_integration_panic(Needle::Regexp(
+        regex::Regex::new(
+            r#"proving failed: [^\n]*\n\s*left: 1[^\n]*\n\s*right: 0"#,
+        )
+        .unwrap(),
+    )),
+)]
 #[tokio::test]
-#[should_panic(expected = "left: 1\n right: 0")]
 async fn trivial_negative_flow_quantity_must_be_zero<Env: Environment>(
     #[future(awt)]
     #[case]
     env: anyhow::Result<Env>,
-) {
+    #[case] assert_err: impl FnOnce(anyhow::Result<Env::Transaction>) -> anyhow::Result<()>,
+) -> anyhow::Result<()> {
     let env = env.expect("env setup failed");
 
     let bad = build_action_with_overrides(7, TrivialActionOverrides::invalid_nonzero_quantity())
         .expect("failed to build invalid trivial action");
 
-    _ = prove_actions(&env, &[bad]).await;
+    assert_err(prove_actions(&env, &[bad]).await)
 }
 
 #[rstest]
-#[case::integration_test(EvmIntegrationEnv::setup())]
+#[case::integration_test(
+    EvmIntegrationEnv::setup(),
+    expect_integration_panic(Needle::Static("assertion failed: self.resource.is_ephemeral"))
+)]
 #[tokio::test]
-#[should_panic(expected = "assertion failed: self.resource.is_ephemeral")]
 async fn trivial_negative_flow_resource_must_be_ephemeral<Env: Environment>(
     #[future(awt)]
     #[case]
     env: anyhow::Result<Env>,
-) {
+    #[case] assert_err: impl FnOnce(anyhow::Result<Env::Transaction>) -> anyhow::Result<()>,
+) -> anyhow::Result<()> {
     let env = env.expect("env setup failed");
 
     let bad =
         build_action_with_overrides(8, TrivialActionOverrides::invalid_consumed_non_ephemeral())
             .expect("failed to build invalid trivial action");
 
-    _ = prove_actions(&env, &[bad]).await;
+    assert_err(prove_actions(&env, &[bad]).await)
 }

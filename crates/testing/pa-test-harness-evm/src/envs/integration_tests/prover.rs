@@ -1,3 +1,5 @@
+use std::panic::AssertUnwindSafe;
+
 use anoma_rm_risc0::action::Action;
 use anoma_rm_risc0::compliance::ComplianceInstance;
 use anoma_rm_risc0::compliance_unit::ComplianceUnit;
@@ -15,7 +17,20 @@ use super::Transaction;
 impl Transaction {
     #[inline]
     pub fn create(witnesses: &[ActionWitnesses]) -> anyhow::Result<Self> {
-        constrain_txn(witnesses)
+        // NOTE: this may not actually be unwind safe, but we don't care, because
+        // we will hardly ever run into unwind safety issues during these tests
+        std::panic::catch_unwind(AssertUnwindSafe(|| constrain_txn(witnesses))).map_or_else(
+            |cause| {
+                if let Some(panic_msg) = cause.downcast_ref::<String>() {
+                    anyhow::bail!("proving failed: {panic_msg}");
+                }
+                if let Some(panic_msg) = cause.downcast_ref::<&'static str>() {
+                    anyhow::bail!("proving failed: {panic_msg}");
+                }
+                std::panic::resume_unwind(cause)
+            },
+            |result| result,
+        )
     }
 }
 
