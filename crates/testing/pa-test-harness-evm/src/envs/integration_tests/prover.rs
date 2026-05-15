@@ -32,6 +32,16 @@ impl Transaction {
             |result| result,
         )
     }
+
+    #[inline]
+    pub fn as_arm(&self) -> &ArmTxn {
+        &self.arm_txn
+    }
+
+    #[inline]
+    pub fn as_arm_mut(&mut self) -> &mut ArmTxn {
+        &mut self.arm_txn
+    }
 }
 
 fn encode_seal(verifying_key: Digest, journal: Digest) -> Vec<u8> {
