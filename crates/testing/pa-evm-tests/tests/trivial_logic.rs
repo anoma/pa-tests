@@ -9,7 +9,7 @@ use pa_test_harness_evm_action_trivial::{
 use rstest::*;
 
 #[rstest]
-#[case::integration_test(EvmIntegrationEnv::setup())]
+#[case::integration_test(EvmIntegrationEnv::setup_bare())]
 #[tokio::test]
 async fn trivial_happy_flow<Env: Environment>(
     #[future(awt)]
@@ -33,7 +33,7 @@ async fn trivial_happy_flow<Env: Environment>(
 
 #[rstest]
 #[case::integration_test(
-    EvmIntegrationEnv::setup(),
+    EvmIntegrationEnv::setup_bare(),
     expect_integration_panic(Needle::Regexp(
         regex::Regex::new(
             r#"proving failed: [^\n]*\n\s*left: 1[^\n]*\n\s*right: 0"#,
@@ -58,7 +58,7 @@ async fn trivial_negative_flow_quantity_must_be_zero<Env: Environment>(
 
 #[rstest]
 #[case::integration_test(
-    EvmIntegrationEnv::setup(),
+    EvmIntegrationEnv::setup_bare(),
     expect_integration_panic(Needle::Static("assertion failed: self.resource.is_ephemeral"))
 )]
 #[tokio::test]

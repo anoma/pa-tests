@@ -16,7 +16,14 @@ use crate::state::pa::insert_pa_address;
 use super::{CommitmentTree, Environment, ProtocolAdapter, Prover};
 
 impl Environment {
-    pub async fn setup() -> anyhow::Result<Self> {
+    pub async fn setup_bare() -> anyhow::Result<Self> {
+        Self::setup(async |_| anyhow::Ok(())).await
+    }
+
+    pub async fn setup<F>(insert_additional: F) -> anyhow::Result<Self>
+    where
+        F: AsyncFnOnce(&mut StateBuilder) -> anyhow::Result<()>,
+    {
         let anvil = Anvil::new().spawn();
 
         let signer = alloy::signers::local::PrivateKeySigner::from_bytes(&b256!(
@@ -49,6 +56,9 @@ impl Environment {
             insert_default_signer(&mut builder, provider.clone());
             insert_chain_id(&mut builder, named_chain);
             insert_pa_address(&mut builder, pa_address);
+            insert_additional(&mut builder)
+                .await
+                .context("failed to insert additional data into state")?;
 
             builder.finalize()
         };
