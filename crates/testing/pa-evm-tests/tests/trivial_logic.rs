@@ -1,6 +1,7 @@
 use anyhow::Context;
 use pa_evm_tests::{
-    EvmIntegrationEnv, Needle, commitment_root, execute_tx, expect_integration_panic, prove_actions,
+    EvmIntegrationEnv, Needle, commitment_root, execute_tx, expect_integration_panic,
+    prove_actions, tamper_integration_first_logic_seal,
 };
 use pa_test_harness_core::environment::Environment;
 use pa_test_harness_evm_action_trivial::{
@@ -75,4 +76,33 @@ async fn trivial_negative_flow_resource_must_be_ephemeral<Env: Environment>(
             .expect("failed to build invalid trivial action");
 
     assert_err(prove_actions(&env, &[bad]).await)
+}
+
+#[rstest]
+#[case::integration_test(
+    EvmIntegrationEnv::setup_bare(),
+    tamper_integration_first_logic_seal,
+    expect_integration_panic(Needle::Static(
+        "protocol adapter preflight failed: server returned an error response: error \
+         code 3: execution reverted: payload, data: \"0x08c379a0"
+    ))
+)]
+#[tokio::test]
+async fn trivial_negative_flow_invalid_seal<Env: Environment>(
+    #[future(awt)]
+    #[case]
+    env: anyhow::Result<Env>,
+    #[case] tamper: impl FnOnce(&mut Env::Transaction) -> anyhow::Result<()>,
+    #[case] assert_err: impl FnOnce(anyhow::Result<()>) -> anyhow::Result<()>,
+) -> anyhow::Result<()> {
+    let mut env = env.context("env setup failed")?;
+
+    let actions = build_actions(1, 11).context("failed to build trivial actions")?;
+    let mut tx = prove_actions(&env, &actions)
+        .await
+        .context("valid witnesses should prove before tampering")?;
+
+    tamper(&mut tx).context("failed to tamper transaction proof")?;
+
+    assert_err(execute_tx(&mut env, tx).await)
 }

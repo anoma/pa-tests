@@ -4511,6 +4511,7 @@ name = "pa-evm-tests"
 version = "2.0.0-rc2"
 dependencies = [
  "anyhow",
+ "bincode",
  "pa-test-harness-core",
  "pa-test-harness-evm",
  "pa-test-harness-evm-action-trivial",

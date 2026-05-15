@@ -12,6 +12,7 @@ pa-test-harness-evm = { path = "../pa-test-harness-evm", features = ["pa-binding
 pa-test-harness-evm-action-trivial = { path = "../pa-test-harness-evm-action-trivial" }
 
 anyhow.workspace = true
+bincode.workspace = true
 regex.workspace = true
 risc0-zkvm.workspace = true
 rstest.workspace = true
