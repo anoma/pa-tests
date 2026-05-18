@@ -2,6 +2,7 @@ use alloy::primitives::Address;
 use alloy::primitives::U256;
 use anoma_rm_risc0::Digest;
 use anoma_rm_risc0::resource::Resource;
+use anyhow::Context;
 use transfer_witness::ValueInfo;
 use transfer_witness::calculate_label_ref;
 use transfer_witness::calculate_persistent_value_ref;
@@ -146,7 +147,7 @@ pub fn wrap_created_resource(
     let nonce: [u8; 32] = consumed_nullifier
         .as_bytes()
         .try_into()
-        .map_err(|_| anyhow::anyhow!("nullifier must be 32 bytes"))?;
+        .context("nullifier must be 32 bytes")?;
 
     Ok(Resource {
         logic_ref: token_transfer_vk(),
@@ -174,7 +175,7 @@ pub fn transfer_created_resource(
     let nonce: [u8; 32] = consumed_nullifier
         .as_bytes()
         .try_into()
-        .map_err(|_| anyhow::anyhow!("nullifier must be 32 bytes"))?;
+        .context("nullifier must be 32 bytes")?;
 
     Ok(Resource {
         logic_ref: token_transfer_vk(),
@@ -203,7 +204,7 @@ pub fn unwrap_created_resource(
     let nonce: [u8; 32] = consumed_nullifier
         .as_bytes()
         .try_into()
-        .map_err(|_| anyhow::anyhow!("nullifier must be 32 bytes"))?;
+        .context("nullifier must be 32 bytes")?;
 
     let label_ref = overrides
         .created_label_ref
