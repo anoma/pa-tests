@@ -1,9 +1,11 @@
 use alloy::node_bindings::AnvilInstance;
+use alloy::primitives::B256;
 use alloy::providers::DynProvider;
 use anoma_pa_evm_bindings::generated::protocol_adapter::ProtocolAdapter as PaContract;
 use anoma_rm_risc0::action_tree::MerkleTree as ArmTree;
 use anoma_rm_risc0::merkle_path::MerklePath;
 use anoma_rm_risc0::transaction::Transaction as ArmTxn;
+use anyhow::Context;
 use pa_test_harness_core::environment::CommitmentTree as CoreCommitmentTree;
 use pa_test_harness_core::environment::Environment as CoreEnvironment;
 use pa_test_harness_core::environment::ProtocolAdapter as CoreProtocolAdapter;
@@ -85,6 +87,9 @@ impl CoreProtocolAdapter for ProtocolAdapter {
     async fn execute(&mut self, transaction: Self::Transaction) -> anyhow::Result<()> {
         let created_commitments: Vec<Digest> = transaction.created_commitments()?.collect();
         let tx = transaction.arm_txn;
+
+        self.assert_root_consistency(&tx).await?;
+
         let pa_tx: PaContract::Transaction = tx.into();
 
         evm_execute::execute_on_pa(&self.pa, pa_tx).await?;
@@ -96,6 +101,54 @@ impl CoreProtocolAdapter for ProtocolAdapter {
 
     fn commitment_tree(&self) -> &Self::CommitmentTree {
         &self.commitment_tree
+    }
+}
+
+impl ProtocolAdapter {
+    async fn assert_root_consistency(&self, tx: &ArmTxn) -> anyhow::Result<()> {
+        let local_root = self.commitment_tree.root()?;
+        let pa_root = self
+            .pa
+            .latestCommitmentTreeRoot()
+            .call()
+            .await
+            .context("failed to query latest commitment tree root from protocol adapter")?;
+
+        let local_root_b256 = B256::from_slice(local_root.as_bytes());
+        anyhow::ensure!(
+            local_root_b256 == pa_root,
+            "commitment tree root mismatch before execution: local={local_root_b256:?}, pa={pa_root:?}"
+        );
+
+        for (action_idx, action) in tx.actions.iter().enumerate() {
+            for (unit_idx, unit) in action.compliance_units.iter().enumerate() {
+                let instance = unit.get_instance().with_context(|| {
+                    format!("failed to decode compliance instance for action {action_idx} unit {unit_idx}")
+                })?;
+
+                let consumed_root =
+                    B256::from_slice(instance.consumed_commitment_tree_root.as_bytes());
+                let contained = self
+                    .pa
+                    .isCommitmentTreeRootContained(consumed_root)
+                    .call()
+                    .await
+                    .with_context(|| {
+                        format!(
+                            "failed to query root containment for action {action_idx} unit {unit_idx}"
+                        )
+                    })?;
+
+                anyhow::ensure!(
+                    contained,
+                    "consumed commitment tree root not found in PA for action {action_idx} unit \
+                     {unit_idx}: root={consumed_root:?}, pa_latest={pa_root:?}, \
+                     local_latest={local_root_b256:?}"
+                );
+            }
+        }
+
+        Ok(())
     }
 }
 
