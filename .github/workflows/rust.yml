@@ -1,0 +1,58 @@
+name: Rust
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  fmt-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Check code formatting
+      run: cargo fmt --check
+
+  clippy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Check clippy
+      run: cargo clippy --verbose
+
+  test-integration:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    # Install cargo-nextest
+    - name: Install cargo-nextest
+      uses: taiki-e/install-action@cargo-nextest
+    - name: Run integration tests
+      run: cargo nextest run -E 'not package(/harness-.*/)' integration_test
+      env:
+        RISC0_SKIP_BUILD_KERNELS: 1
+
+  test-harness:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    # Install cargo-nextest
+    - name: Install cargo-nextest
+      uses: taiki-e/install-action@cargo-nextest
+    - name: Run tests on the harness itself
+      run: cargo nextest run -E 'package(/harness-.*/)'
+      env:
+        RISC0_SKIP_BUILD_KERNELS: 1
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Generate docs
+      run: cargo doc --verbose
+      env:
+        RISC0_SKIP_BUILD_KERNELS: 1
