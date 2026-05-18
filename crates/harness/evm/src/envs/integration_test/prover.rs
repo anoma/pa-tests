@@ -19,7 +19,7 @@ impl Transaction {
     pub fn create(witnesses: &[ActionWitnesses]) -> anyhow::Result<Self> {
         // NOTE: this may not actually be unwind safe, but we don't care, because
         // we will hardly ever run into unwind safety issues during these tests
-        std::panic::catch_unwind(AssertUnwindSafe(|| constrain_txn(witnesses))).map_or_else(
+        std::panic::catch_unwind(AssertUnwindSafe(|| constrain_txn(witnesses))).unwrap_or_else(
             |cause| {
                 if let Some(panic_msg) = cause.downcast_ref::<String>() {
                     anyhow::bail!("proving failed: {panic_msg}");
@@ -29,7 +29,6 @@ impl Transaction {
                 }
                 std::panic::resume_unwind(cause)
             },
-            |result| result,
         )
     }
 
@@ -80,8 +79,7 @@ fn compliance_instance_to_journal(instance: &ComplianceInstance) -> anyhow::Resu
 
 #[inline]
 fn journal_digest_from_words(words: &[u32]) -> Digest {
-    let raw: [u8; 32] =
-        Sha256::digest(&anoma_rm_risc0::utils::words_to_bytes(words).to_vec()).into();
+    let raw: [u8; 32] = Sha256::digest(anoma_rm_risc0::utils::words_to_bytes(words)).into();
 
     raw.into()
 }

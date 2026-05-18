@@ -92,16 +92,17 @@ fn decode_revert_detail(err: &str) -> String {
     }
 
     let selector = [bytes[0], bytes[1], bytes[2], bytes[3]];
-    if selector == ERROR_STRING_SELECTOR {
-        if let Some(reason) = decode_error_string_payload(&bytes[4..]) {
-            return format!("execution reverted: {reason}");
-        }
+    if selector == ERROR_STRING_SELECTOR
+        && let Some(reason) = decode_error_string_payload(&bytes[4..])
+    {
+        return format!("execution reverted: {reason}");
     }
 
-    if selector == PANIC_SELECTOR && bytes.len() >= 36 {
-        if let Some(code) = decode_word_usize(&bytes[4..36]) {
-            return format!("execution panicked with code 0x{code:x}");
-        }
+    if selector == PANIC_SELECTOR
+        && bytes.len() >= 36
+        && let Some(code) = decode_word_usize(&bytes[4..36])
+    {
+        return format!("execution panicked with code 0x{code:x}");
     }
 
     format!("{err}; selector=0x{}; revert_data={raw}", &raw[2..10])
