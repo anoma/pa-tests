@@ -113,11 +113,21 @@ impl CoreCommitmentTree for CommitmentTree {
             return Ok(*anoma_rm_risc0::compliance::INITIAL_ROOT);
         }
 
-        Ok(ArmTree::new(self.leaves.clone()).root()?)
+        Ok(self.build_tree().root()?)
     }
 
     fn path_to(&self, leaf: Digest) -> anyhow::Result<MerklePath> {
-        Ok(ArmTree::new(self.leaves.clone()).generate_path(&leaf)?)
+        Ok(self.build_tree().generate_path(&leaf)?)
+    }
+}
+
+impl CommitmentTree {
+    fn build_tree(&self) -> ArmTree {
+        let mut leaves = self.leaves.clone();
+        if leaves.is_empty() || leaves.len().is_power_of_two() {
+            leaves.push(*anoma_rm_risc0::merkle_path::PADDING_LEAF);
+        }
+        ArmTree::new(leaves)
     }
 }
 
