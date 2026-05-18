@@ -13,10 +13,10 @@ example-erc20-bindings = []
 weth-bindings = []
 
 [dependencies]
-pa-test-harness-core = { path = "../pa-test-harness-core" }
+pa-test-harness-core = { path = "../core" }
 
 alloy = { workspace = true, features = ["contract", "providers", "json", "sol-types"] }
 anyhow.workspace = true
 
 [dev-dependencies]
-pa-test-harness-core = { path = "../pa-test-harness-core", features = ["mocks"] }
+pa-test-harness-core = { path = "../core", features = ["mocks"] }

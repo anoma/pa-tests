@@ -1,11 +1,11 @@
 [workspace]
 members = [
-  "crates/testing/pa-test-harness-core",
-  "crates/testing/pa-evm-tests",
-  "crates/testing/pa-test-harness-evm-action-trivial",
-  "crates/testing/pa-test-harness-evm",
-  "crates/testing/pa-test-harness-evm-erc20",
-  "crates/testing/pa-test-harness-evm-mock-permit2",
+  "crates/harness/core",
+  "crates/harness/evm-action-trivial",
+  "crates/harness/evm-erc20",
+  "crates/harness/evm-mock-permit2",
+  "crates/harness/evm",
+  "crates/tests/evm",
 ]
 resolver = "3"
 

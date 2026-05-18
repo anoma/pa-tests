@@ -12,7 +12,7 @@ pa-bindings = ["dep:anoma-pa-evm-bindings"]
 mock-risc0-bindings = []
 
 [dependencies]
-pa-test-harness-core = { path = "../pa-test-harness-core" }
+pa-test-harness-core = { path = "../core" }
 
 alloy = { workspace = true, features = ["full", "json", "signer-local", "node-bindings", "sol-types"] }
 alloy-chains.workspace = true
@@ -25,5 +25,5 @@ risc0-zkvm.workspace = true
 sha2.workspace = true
 
 [dev-dependencies]
-pa-test-harness-core = { path = "../pa-test-harness-core", features = ["mocks"] }
-pa-test-harness-evm-action-trivial = { path = "../pa-test-harness-evm-action-trivial" }
+pa-test-harness-core = { path = "../core", features = ["mocks"] }
+pa-test-harness-evm-action-trivial = { path = "../evm-action-trivial" }
