@@ -1,5 +1,5 @@
-pub type EvmIntegrationEnv = pa_test_harness_evm::envs::integration_tests::Environment;
-pub type EvmIntegrationTx = pa_test_harness_evm::envs::integration_tests::Transaction;
+pub type EvmIntegrationEnv = pa_test_harness_evm::envs::integration_test::Environment;
+pub type EvmIntegrationTx = pa_test_harness_evm::envs::integration_test::Transaction;
 
 use anyhow::Context;
 
