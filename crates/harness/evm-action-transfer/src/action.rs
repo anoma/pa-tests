@@ -42,7 +42,7 @@ impl TransferLogicWitness {
 
 impl LogicWitness for TransferLogicWitness {
     fn verifying_key(&self) -> anoma_rm_risc0::Digest {
-        resource::TOKEN_TRANSFER_VK
+        resource::token_transfer_vk()
     }
 
     fn constrain(&self) -> anyhow::Result<LogicInstance> {

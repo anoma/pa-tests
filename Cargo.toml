@@ -42,4 +42,5 @@ risc0-zkvm = "3.0.3"
 rstest = "0.26.1"
 sha2 = "0.11.0"
 tokio = { version = "1.48", features = ["rt-multi-thread"] }
+transfer_library = { git = "https://github.com/anoma/anomapay-backend-multichain", rev = "0f65cd9104e4664cea2c8b7e11f68c0c9807771d", package = "transfer_library" }
 transfer_witness = { git = "https://github.com/anoma/anomapay-backend-multichain", rev = "0f65cd9104e4664cea2c8b7e11f68c0c9807771d", package = "transfer_witness" }

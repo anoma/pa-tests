@@ -9,10 +9,10 @@ use transfer_witness::calculate_value_ref_from_ethereum_account_addr;
 
 use crate::fixtures::TransferKeychain;
 
-pub const TOKEN_TRANSFER_VK: Digest = Digest::from_bytes([
-    0xbc, 0x12, 0x32, 0x36, 0x68, 0xc3, 0x7c, 0x3d, 0x38, 0x1c, 0xa7, 0x98, 0xf1, 0x11, 0x16, 0xf3,
-    0x5f, 0xb1, 0x63, 0x9d, 0x12, 0x23, 0x9b, 0x29, 0xda, 0x78, 0x10, 0xdf, 0x39, 0x85, 0xe7, 0xad,
-]);
+#[inline]
+pub fn token_transfer_vk() -> Digest {
+    *transfer_library::TOKEN_TRANSFER_ID
+}
 
 #[derive(Clone, Debug, Default)]
 pub struct WrapActionOverrides {
@@ -124,7 +124,7 @@ pub fn wrap_consumed_resource(
             ));
 
     Resource {
-        logic_ref: TOKEN_TRANSFER_VK,
+        logic_ref: token_transfer_vk(),
         label_ref,
         quantity: overrides.quantity.unwrap_or(quantity),
         value_ref,
@@ -149,7 +149,7 @@ pub fn wrap_created_resource(
         .map_err(|_| anyhow::anyhow!("nullifier must be 32 bytes"))?;
 
     Ok(Resource {
-        logic_ref: TOKEN_TRANSFER_VK,
+        logic_ref: token_transfer_vk(),
         label_ref: calculate_label_ref(forwarder.as_ref(), token.as_ref()),
         quantity,
         value_ref: calculate_persistent_value_ref(&ValueInfo {
@@ -177,7 +177,7 @@ pub fn transfer_created_resource(
         .map_err(|_| anyhow::anyhow!("nullifier must be 32 bytes"))?;
 
     Ok(Resource {
-        logic_ref: TOKEN_TRANSFER_VK,
+        logic_ref: token_transfer_vk(),
         label_ref: calculate_label_ref(forwarder.as_ref(), token.as_ref()),
         quantity,
         value_ref: calculate_persistent_value_ref(&ValueInfo {
@@ -216,7 +216,7 @@ pub fn unwrap_created_resource(
             ));
 
     Ok(Resource {
-        logic_ref: TOKEN_TRANSFER_VK,
+        logic_ref: token_transfer_vk(),
         label_ref,
         quantity: overrides.quantity.unwrap_or(quantity),
         value_ref,

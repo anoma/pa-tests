@@ -17,7 +17,7 @@ pub use action::build_wrap_action_with_overrides;
 pub use fixtures::TransferKeychain;
 pub use fixtures::receiver_keychain;
 pub use fixtures::sender_keychain;
-pub use resource::TOKEN_TRANSFER_VK;
 pub use resource::TransferActionOverrides;
 pub use resource::UnwrapActionOverrides;
 pub use resource::WrapActionOverrides;
+pub use resource::token_transfer_vk;

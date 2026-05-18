@@ -4806,6 +4806,7 @@ dependencies = [
  "anyhow",
  "bincode",
  "pa-test-harness-core",
+ "transfer_library",
  "transfer_witness",
 ]
 
@@ -5250,7 +5251,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a56d757972c98b346a9b766e3f02746cde6dd1cd1d1d563472929fdd74bec4d"
 dependencies = [
  "anyhow",
- "itertools 0.14.0",
+ "itertools 0.12.1",
  "proc-macro2",
  "quote",
  "syn 2.0.117",
@@ -5263,7 +5264,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "27c6023962132f4b30eb4c172c91ce92d933da334c59c23cddee82358ddafb0b"
 dependencies = [
  "anyhow",
- "itertools 0.14.0",
+ "itertools 0.12.1",
  "proc-macro2",
  "quote",
  "syn 2.0.117",
@@ -7280,6 +7281,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e0d2eaa99c3c2e41547cfa109e910a68ea03823cccad4a0525dcbc9b01e8c71"
 dependencies = [
  "tracing-core",
+]
+
+[[package]]
+name = "transfer_library"
+version = "2.0.0-rc2"
+source = "git+https://github.com/anoma/anomapay-backend-multichain?rev=0f65cd9104e4664cea2c8b7e11f68c0c9807771d#0f65cd9104e4664cea2c8b7e11f68c0c9807771d"
+dependencies = [
+ "anoma-rm-risc0",
+ "anoma-rm-risc0-gadgets",
+ "hex",
+ "k256",
+ "lazy_static",
+ "serde",
+ "transfer_witness",
 ]
 
 [[package]]
