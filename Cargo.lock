@@ -4525,7 +4525,6 @@ dependencies = [
 name = "pa-test-harness-core"
 version = "2.0.0-rc2"
 dependencies = [
- "anoma-pa-evm-bindings",
  "anoma-rm-risc0",
  "anyhow",
  "mockall",

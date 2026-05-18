@@ -15,7 +15,7 @@ weth-bindings = []
 [dependencies]
 pa-test-harness-core = { path = "../pa-test-harness-core" }
 
-alloy.workspace = true
+alloy = { workspace = true, features = ["contract", "providers", "json", "sol-types"] }
 anyhow.workspace = true
 
 [dev-dependencies]

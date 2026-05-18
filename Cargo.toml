@@ -17,12 +17,7 @@ readme = "README.md"
 version = "2.0.0-rc2"
 
 [workspace.dependencies]
-alloy = { version = "1.1.2", features = [
-  "full",
-  "json",
-  "signer-local",
-  "node-bindings",
-] }
+alloy = { version = "1.1.2", default-features = false }
 alloy-chains = "0.2.18"
 anoma-pa-evm-bindings = "2.1.0"
 anoma-rm-risc0 = { version = "1.1.1", default-features = false }

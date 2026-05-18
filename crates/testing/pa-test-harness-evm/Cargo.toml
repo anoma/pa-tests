@@ -14,7 +14,7 @@ mock-risc0-bindings = []
 [dependencies]
 pa-test-harness-core = { path = "../pa-test-harness-core" }
 
-alloy = { workspace = true, features = ["sol-types"] }
+alloy = { workspace = true, features = ["full", "json", "signer-local", "node-bindings", "sol-types"] }
 alloy-chains.workspace = true
 anoma-pa-evm-bindings = { workspace = true, optional = true }
 anoma-rm-risc0.workspace = true
