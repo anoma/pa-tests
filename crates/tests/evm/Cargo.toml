@@ -7,9 +7,9 @@ readme.workspace = true
 version.workspace = true
 
 [dependencies]
-pa-test-harness-core = { path = "../../harness/core" }
-pa-test-harness-evm = { path = "../../harness/evm", features = ["pa-bindings", "mock-risc0-bindings"] }
-pa-test-harness-evm-action-trivial = { path = "../../harness/evm-action-trivial" }
+pa-test-harness-core.workspace = true
+pa-test-harness-evm = { workspace = true, features = ["pa-bindings", "mock-risc0-bindings"] }
+pa-test-harness-evm-action-trivial.workspace = true
 
 anyhow.workspace = true
 bincode.workspace = true

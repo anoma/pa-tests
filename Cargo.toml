@@ -17,6 +17,10 @@ readme = "README.md"
 version = "2.0.0-rc2"
 
 [workspace.dependencies]
+pa-test-harness-core = { path = "crates/harness/core" }
+pa-test-harness-evm = { path = "crates/harness/evm" }
+pa-test-harness-evm-action-trivial = { path = "crates/harness/evm-action-trivial" }
+
 alloy = { version = "1.1.2", default-features = false }
 alloy-chains = "0.2.18"
 anoma-pa-evm-bindings = "2.1.0"

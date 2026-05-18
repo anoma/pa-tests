@@ -7,11 +7,11 @@ readme.workspace = true
 version.workspace = true
 
 [dependencies]
-pa-test-harness-core = { path = "../core" }
+pa-test-harness-core.workspace = true
 
 alloy = { workspace = true, features = ["node-bindings", "providers", "rpc-types", "json"] }
 anyhow.workspace = true
 
 [dev-dependencies]
-pa-test-harness-core = { path = "../core", features = ["mocks"] }
+pa-test-harness-core = { workspace = true, features = ["mocks"] }
 tokio.workspace = true
