@@ -53,7 +53,7 @@ jobs:
       uses: mozilla-actions/sccache-action@v0.0.9
       env:
         SCCACHE_BUCKET: ${{ env.RUNS_ON_S3_BUCKET_CACHE }}
-        SCCACHE_S3_KEY_PREFIX: /sccache/clippy
+        SCCACHE_S3_KEY_PREFIX: /anoma/pa-tests/sccache/clippy
     - name: Check clippy
       run: cargo clippy --verbose
       env:
@@ -89,7 +89,7 @@ jobs:
       uses: mozilla-actions/sccache-action@v0.0.9
       env:
         SCCACHE_BUCKET: ${{ env.RUNS_ON_S3_BUCKET_CACHE }}
-        SCCACHE_S3_KEY_PREFIX: /sccache/integration
+        SCCACHE_S3_KEY_PREFIX: /anoma/pa-tests/sccache/integration
     - name: Install foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
@@ -131,7 +131,7 @@ jobs:
       uses: mozilla-actions/sccache-action@v0.0.9
       env:
         SCCACHE_BUCKET: ${{ env.RUNS_ON_S3_BUCKET_CACHE }}
-        SCCACHE_S3_KEY_PREFIX: /sccache/harness
+        SCCACHE_S3_KEY_PREFIX: /anoma/pa-tests/sccache/harness
     - name: Install foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
