@@ -11,8 +11,10 @@ For a deeper walkthrough of crate responsibilities and data flow, see [ARCHITECT
 - `crates/harness/core` - shared traits, state container, witness types, test helpers
 - `crates/harness/evm` - EVM environment, setup/prover/execute paths, EVM state helpers
 - `crates/harness/evm-erc20` - ERC-20 deploy/binding utilities for tests
+- `crates/harness/evm-erc20-forwarder` - ERC20 forwarder deploy/binding and typed address state helpers
 - `crates/harness/evm-mock-permit2` - optional Permit2 canonical-address deployment helper
 - `crates/harness/evm-action-trivial` - trivial action witness builders
+- `crates/harness/evm-action-transfer` - transfer witness action builders (wrap/transfer/unwrap + negative variants)
 - `crates/tests/evm` - integration tests using the harness
 
 ## Quick start
