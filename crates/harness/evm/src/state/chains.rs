@@ -1,26 +1,48 @@
 use alloy_chains::NamedChain;
+use anyhow::Context;
 use pa_test_harness_core::environment::Environment;
 use pa_test_harness_core::environment::State;
 use pa_test_harness_core::environment::StateBuilder;
 
 use crate::state::keys::chain_id_key;
+use crate::state::keys::chain_name_key;
 
 #[inline]
 pub fn insert_chain_id(builder: &mut StateBuilder, chain: NamedChain) {
-    builder.insert(chain_id_key(chain), chain as u64);
+    builder.insert(chain_id_key(), chain as u64);
+    builder.insert(chain_name_key(), chain);
 }
 
 #[inline]
-pub fn chain_id<E>(env: &E, chain: NamedChain) -> anyhow::Result<u64>
+pub fn chain_id<E>(env: &E) -> anyhow::Result<u64>
 where
     E: Environment,
 {
-    chain_id_in_state(env.state(), chain)
+    chain_id_in_state(env.state())
 }
 
 #[inline]
-pub fn chain_id_in_state(state: &State, chain: NamedChain) -> anyhow::Result<u64> {
-    state.get::<u64>(&chain_id_key(chain)).copied()
+pub fn chain_id_in_state(state: &State) -> anyhow::Result<u64> {
+    state
+        .get::<u64>(chain_id_key())
+        .copied()
+        .context("failed to retrieve chain id from env")
+}
+
+#[inline]
+pub fn chain_name<E>(env: &E) -> anyhow::Result<NamedChain>
+where
+    E: Environment,
+{
+    chain_name_in_state(env.state())
+}
+
+#[inline]
+pub fn chain_name_in_state(state: &State) -> anyhow::Result<NamedChain> {
+    state
+        .get::<NamedChain>(chain_name_key())
+        .copied()
+        .context("failed to retrieve chain name from env")
 }
 
 #[cfg(test)]
@@ -40,12 +62,12 @@ mod tests {
         let mut env = MockEnvironment::new();
         env.expect_state().return_const(state);
 
-        let resolved = chain_id(&env, NamedChain::Sepolia).expect("must resolve chain id");
+        let resolved = chain_id(&env).expect("must resolve chain id");
         assert_eq!(resolved, 11155111);
     }
 
     #[test]
-    fn insert_chain_id_uses_named_chain_identifier() {
+    fn insert_chain_id_resolves_named_chain() {
         let mut builder = StateBuilder::new();
         insert_chain_id(&mut builder, NamedChain::Mainnet);
 
@@ -54,23 +76,21 @@ mod tests {
         let mut env = MockEnvironment::new();
         env.expect_state().return_const(state);
 
-        let resolved = chain_id(&env, NamedChain::Mainnet).expect("must resolve chain id");
-        assert_eq!(resolved, NamedChain::Mainnet as u64);
+        let resolved = chain_name(&env).expect("must resolve chain name");
+        assert_eq!(resolved, NamedChain::Mainnet);
     }
 
     #[test]
     fn missing_chain_id_key_errors() {
-        let mut builder = StateBuilder::new();
-        insert_chain_id(&mut builder, NamedChain::Mainnet);
-
-        let state = builder.finalize();
+        let state = StateBuilder::new().finalize();
 
         let mut env = MockEnvironment::new();
         env.expect_state().return_const(state);
 
-        let err = chain_id(&env, NamedChain::Sepolia).expect_err("must fail on missing key");
+        let err = chain_id(&env).expect_err("must fail on missing key");
         assert!(
-            err.to_string().contains("evm.chain.id.sepolia"),
+            err.to_string()
+                .contains("failed to retrieve chain id from env"),
             "error should mention missing key, got: {err}"
         );
     }
