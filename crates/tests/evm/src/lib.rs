@@ -88,12 +88,7 @@ pub async fn setup_transfer_integration_env() -> anyhow::Result<EvmIntegrationEn
         let pa_address = pa_address_in_state(builder.as_state())
             .context("failed to retrieve protocol adapter address from setup state")?;
 
-        if let Err(err) = deploy_permit2_canonical(&provider).await {
-            let msg = err.to_string();
-            if !msg.contains("permit2 runtime bytecode hash mismatch") {
-                return Err(err).context("failed to deploy permit2 at canonical address");
-            }
-        }
+        deploy_permit2_canonical(&provider).await?;
 
         let deployer = sender_keychain()
             .context("failed to build sender keychain")?
