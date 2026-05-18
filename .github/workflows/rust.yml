@@ -28,9 +28,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    # Get anvil
+    - name: Install foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: stable
     # Install cargo-nextest
     - name: Install cargo-nextest
       uses: taiki-e/install-action@cargo-nextest
+    # Run the tests
     - name: Run integration tests
       run: cargo nextest run -E 'not package(/harness-.*/)' integration_test
       env:
@@ -40,9 +46,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    # Get anvil
+    - name: Install foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: stable
     # Install cargo-nextest
     - name: Install cargo-nextest
       uses: taiki-e/install-action@cargo-nextest
+    # Run the tests
     - name: Run tests on the harness itself
       run: cargo nextest run -E 'package(/harness-.*/)'
       env:
