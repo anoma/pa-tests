@@ -8,7 +8,7 @@ use crate::state::keys::chain_id_key;
 use crate::state::keys::chain_name_key;
 
 #[inline]
-pub fn insert_chain_id(builder: &mut StateBuilder, chain: NamedChain) {
+pub fn insert_chain(builder: &mut StateBuilder, chain: NamedChain) {
     builder.insert(chain_id_key(), chain as u64);
     builder.insert(chain_name_key(), chain);
 }
@@ -55,7 +55,7 @@ mod tests {
     #[test]
     fn insert_and_resolve_chain_id_for_named_chain() {
         let mut builder = StateBuilder::new();
-        insert_chain_id(&mut builder, NamedChain::Sepolia);
+        insert_chain(&mut builder, NamedChain::Sepolia);
 
         let state = builder.finalize();
 
@@ -69,7 +69,7 @@ mod tests {
     #[test]
     fn insert_chain_id_resolves_named_chain() {
         let mut builder = StateBuilder::new();
-        insert_chain_id(&mut builder, NamedChain::Mainnet);
+        insert_chain(&mut builder, NamedChain::Mainnet);
 
         let state = builder.finalize();
 
