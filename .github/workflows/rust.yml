@@ -133,15 +133,15 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-integration-${{ hashFiles('**/Cargo.lock') }}-${{ env.CACHE_VERSION }}
+          key: ${{ runner.os }}-cargo-e2e-${{ hashFiles('**/Cargo.lock') }}-${{ env.CACHE_VERSION }}
           restore-keys: |
-            ${{ runner.os }}-cargo-integration-${{ hashFiles('**/Cargo.lock') }}-
-            ${{ runner.os }}-cargo-integration-
+            ${{ runner.os }}-cargo-e2e-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-e2e-
       - name: Run sccache-cache
         uses: mozilla-actions/sccache-action@v0.0.9
         env:
           SCCACHE_BUCKET: ${{ env.RUNS_ON_S3_BUCKET_CACHE }}
-          SCCACHE_S3_KEY_PREFIX: /anoma/pa-tests/sccache/integration
+          SCCACHE_S3_KEY_PREFIX: /anoma/pa-tests/sccache/e2e
       - name: Install foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
