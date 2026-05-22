@@ -13,6 +13,7 @@ env:
   CACHE_VERSION: v0
 jobs:
   fmt-check:
+    name: Check Code Formatting
     runs-on: ubuntu-latest # Standard runner is fine for simple formatting
     steps:
       - uses: actions/checkout@v4
