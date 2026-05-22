@@ -24,6 +24,9 @@ impl TransferKeychain {
 }
 
 pub fn sender_keychain() -> anyhow::Result<TransferKeychain> {
+    let ethereum_signer: PrivateKeySigner =
+        "7ad4b84636a3fa408827e7202f6da39287bbf099d1fab6250d3b56e03e77586b".parse()?;
+    let ethereum_addr = ethereum_signer.address();
     Ok(TransferKeychain {
         auth_signing_key: bincode::deserialize(&[
             49, 163, 242, 139, 6, 69, 133, 86, 182, 239, 39, 243, 37, 180, 9, 187, 61, 164, 247,
@@ -41,13 +44,8 @@ pub fn sender_keychain() -> anyhow::Result<TransferKeychain> {
             33, 0, 0, 0, 0, 0, 0, 0, 2, 89, 92, 12, 22, 199, 233, 162, 216, 222, 105, 146, 154, 50,
             232, 161, 210, 135, 150, 63, 178, 234, 21, 129, 202, 93, 250, 5, 43, 21, 62, 145, 159,
         ])?,
-        ethereum_signer: "7ad4b84636a3fa408827e7202f6da39287bbf099d1fab6250d3b56e03e77586b"
-            .parse()?,
-        ethereum_addr: {
-            let signer: PrivateKeySigner =
-                "7ad4b84636a3fa408827e7202f6da39287bbf099d1fab6250d3b56e03e77586b".parse()?;
-            signer.address()
-        },
+        ethereum_addr,
+        ethereum_signer,
     })
 }
 
