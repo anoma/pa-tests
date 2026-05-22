@@ -10,7 +10,7 @@ version.workspace = true
 default = ["pa-bindings"]
 pa-bindings = ["dep:anoma-pa-evm-bindings"]
 mock-risc0-bindings = []
-e2e = ["pa-bindings", "dep:heliax-ap-orchestrator-sdk", "dep:clap", "dep:futures"]
+e2e = ["pa-bindings", "dep:heliax-ap-orchestrator-sdk", "dep:futures"]
 
 [dependencies]
 pa-test-harness-core.workspace = true
@@ -21,7 +21,6 @@ anoma-pa-evm-bindings = { workspace = true, optional = true }
 anoma-rm-risc0.workspace = true
 anyhow.workspace = true
 bincode.workspace = true
-clap = { workspace = true, optional = true }
 futures = { workspace = true, optional = true }
 heliax-ap-orchestrator-sdk = { workspace = true, optional = true }
 hex.workspace = true

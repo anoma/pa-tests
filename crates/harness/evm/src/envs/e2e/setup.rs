@@ -20,17 +20,16 @@ use super::Prover;
 use super::config::E2eConfig;
 
 impl Environment {
-    pub async fn setup(config: E2eConfig) -> anyhow::Result<Self> {
-        Self::setup_with_additional(config, async |_| anyhow::Ok(())).await
+    pub async fn setup_bare() -> anyhow::Result<Self> {
+        Self::setup(async |_| anyhow::Ok(())).await
     }
 
-    pub async fn setup_with_additional<F>(
-        config: E2eConfig,
-        insert_additional: F,
-    ) -> anyhow::Result<Self>
+    pub async fn setup<F>(insert_additional: F) -> anyhow::Result<Self>
     where
         F: AsyncFnOnce(&mut StateBuilder) -> anyhow::Result<()>,
     {
+        let config = E2eConfig::from_env().context("failed to parse e2e test config")?;
+
         let fork_url = format!(
             "https://eth-sepolia.g.alchemy.com/v2/{}",
             config.alchemy_api_key
@@ -62,11 +61,13 @@ impl Environment {
         let named_chain = NamedChain::try_from(chain_id)
             .with_context(|| format!("unsupported chain id {chain_id}"))?;
 
-        let mut builder = QueueClient::builder(&config.queue_base_url);
-        if let Some(token) = &config.queue_auth_token {
-            builder = builder.auth_token(token);
-        }
-        let queue_client = builder.build().context("failed to build queue client")?;
+        let queue_client = {
+            let mut builder = QueueClient::builder(&config.queue_base_url);
+
+            builder = builder.auth_token(&config.queue_auth_token);
+
+            builder.build().context("failed to build queue client")?
+        };
 
         let state = {
             let mut builder = StateBuilder::new();

@@ -6,6 +6,9 @@ license.workspace = true
 readme.workspace = true
 version.workspace = true
 
+[features]
+e2e = ["pa-test-harness-evm/e2e"]
+
 [dependencies]
 pa-test-harness-core.workspace = true
 pa-test-harness-evm = { workspace = true, features = ["pa-bindings", "mock-risc0-bindings"] }

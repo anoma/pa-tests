@@ -1,3 +1,6 @@
+#[cfg(feature = "e2e")]
+pub type EvmE2eEnv = pa_test_harness_evm::envs::e2e::Environment;
+
 pub type EvmIntegrationEnv = pa_test_harness_evm::envs::integration_test::Environment;
 pub type EvmIntegrationTx = pa_test_harness_evm::envs::integration_test::Transaction;
 
