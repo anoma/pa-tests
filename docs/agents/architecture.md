@@ -5,7 +5,7 @@ Scope: crate responsibilities and data flow.
 ## Workspace Layout
 
 - `crates/harness/core`: generic traits, state store, witness types, helpers (`prove_actions`, `execute_tx`, `commitment_root`).
-- `crates/harness/evm`: EVM harness implementation, state helpers, PA/mock Risc0 deploy and integration env.
+- `crates/harness/evm`: EVM harness implementation, state helpers, PA/mock Risc0 deploy and integration/e2e envs.
 - `crates/harness/evm-erc20`: ERC-20 bindings and token address state helpers.
 - `crates/harness/evm-erc20-forwarder`: ERC20 forwarder bindings, deploy helpers, and forwarder address state helpers.
 - `crates/harness/evm-mock-permit2`: optional Permit2 canonical deployment helper.

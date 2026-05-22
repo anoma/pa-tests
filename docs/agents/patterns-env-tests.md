@@ -5,6 +5,7 @@ Scope: integration environment setup, proving, execution, and test style.
 ## Environment Structure
 
 - Integration env lives under `crates/harness/evm/src/envs/integration_test/`.
+- E2e env lives under `crates/harness/evm/src/envs/e2e/` (feature = "e2e", remote queue proving).
 - This is the current EVM location; other backends may differ.
 - Keep setup concerns split by file (`setup`, `prover`, `evm_execute`, `evm_convert`).
 - Environment fields are public for setup-time mutation/inspection.

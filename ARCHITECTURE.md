@@ -40,6 +40,7 @@ Main areas:
   - `prover.rs` - witness-to-transaction proving path
   - `evm_execute.rs` - preflight, on-chain execution, and revert diagnostics
   - `evm_convert.rs` - transaction conversion glue
+- `envs/e2e/` - remote-queue proving environment gated behind `feature = "e2e"`. Setup forks Sepolia via Anvil, reads verifier params from a reference PA, deploys a fresh PA, and constructs a `QueueClient` for the remote GPU proving queue. Proving submits base logic/compliance jobs concurrently via `try_join_all`, assembles an aggregation proof payload, and polls for the final aggregated transaction.
 - `state/` - EVM state keys and typed getters/setters
 - `pa.rs` - protocol adapter bindings and deployment helpers
 - `mock_risc0_bindings.rs` - mock verifier stack deployment
@@ -88,7 +89,7 @@ Integration tests that exercise harness behavior through core abstractions and t
 4. `execute_tx` delegates to backend protocol adapter execution.
 5. Successful execution updates the commitment tree; tests assert roots and error paths.
 
-Setup can target local ephemeral deployments for integration testing or real deployed contracts for end-to-end testing.
+Setup can target local ephemeral deployments for integration testing or real deployed contracts for end-to-end testing. For the e2e env, proving submits jobs to a remote queue instead of running the prover locally.
 
 ## State and namespacing
 
