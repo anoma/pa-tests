@@ -1,8 +1,8 @@
-pub const KEY_PREFIX_ERC20_FORWARDER_V1: &str = "evm.forwarder.erc20.v1";
+pub const KEY_ERC20_FORWARDER_V1_ADDRESS: &str = "evm.forwarder.erc20.v1";
 
 #[inline]
 pub fn erc20_forwarder_v1_addr_key() -> &'static str {
-    KEY_PREFIX_ERC20_FORWARDER_V1
+    KEY_ERC20_FORWARDER_V1_ADDRESS
 }
 
 #[cfg(test)]

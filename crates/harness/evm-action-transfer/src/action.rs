@@ -125,7 +125,7 @@ pub async fn build_wrap_action_with_overrides(
             Permit2Data {
                 chain_id,
                 token,
-                amount: U256::from(quantity),
+                amount: U256::from(overrides.quantity.unwrap_or(quantity)),
                 nonce: permit_nonce,
                 deadline: permit_deadline,
                 spender: forwarder,
