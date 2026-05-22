@@ -9,6 +9,7 @@ use anyhow::Context;
 use heliax_ap_orchestrator_sdk::QueueClient;
 use pa_test_harness_core::environment::StateBuilder;
 
+use crate::pa::protocol_adapter;
 use crate::state::actors::insert_default_signer;
 use crate::state::chains::insert_chain;
 use crate::state::pa::insert_pa_address;
@@ -55,7 +56,7 @@ impl Environment {
 
         let pa_address = deploy_fresh_pa(&provider, deployer).await?;
 
-        let pa = anoma_pa_evm_bindings::generated::protocol_adapter::ProtocolAdapter::ProtocolAdapterInstance::new(pa_address, provider.clone());
+        let pa = protocol_adapter(pa_address, provider.clone());
 
         let chain_id = provider.get_chain_id().await?;
         let named_chain = NamedChain::try_from(chain_id)

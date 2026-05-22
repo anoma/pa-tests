@@ -1,6 +1,5 @@
 use std::time::Duration;
 
-use anyhow::anyhow;
 use heliax_ap_orchestrator_sdk::JobStatus;
 use heliax_ap_orchestrator_sdk::QueueClient;
 
@@ -15,22 +14,20 @@ pub(super) async fn poll_until_done(queue: &QueueClient, job_id: &str) -> anyhow
         match queue.get_job_status(job_id.to_string()).await {
             Ok(JobStatus::Success) => return Ok(()),
             Ok(JobStatus::Failed) => {
-                return Err(anyhow!("queue job {job_id} failed"));
+                anyhow::bail!("queue job {job_id} failed");
             }
             Ok(JobStatus::DeadLetter) => {
-                return Err(anyhow!("queue job {job_id} entered dead letter"));
+                anyhow::bail!("queue job {job_id} entered dead letter");
             }
             Ok(JobStatus::Queued | JobStatus::Running) => {}
             Err(err) => {
                 if start.elapsed() > TRANSIENT_ERROR_GRACE {
-                    return Err(anyhow!("polling queue job {job_id}: {err}"));
+                    anyhow::bail!("polling queue job {job_id}: {err}");
                 }
             }
         }
         if tokio::time::Instant::now() >= deadline {
-            return Err(anyhow!(
-                "queue job {job_id} did not complete within {POLL_TIMEOUT:?}"
-            ));
+            anyhow::bail!("queue job {job_id} did not complete within {POLL_TIMEOUT:?}");
         }
         tokio::time::sleep(POLL_INTERVAL).await;
     }
@@ -49,14 +46,12 @@ pub(super) async fn fetch_job_result<T: serde::de::DeserializeOwned>(
             Ok(None) => {}
             Err(err) => {
                 if start.elapsed() > TRANSIENT_ERROR_GRACE {
-                    return Err(anyhow!("fetching queue job {job_id} result: {err}"));
+                    anyhow::bail!("fetching queue job {job_id} result: {err}");
                 }
             }
         }
         if start.elapsed() > TRANSIENT_ERROR_GRACE {
-            return Err(anyhow!(
-                "queue job {job_id} reported Done but never returned a result"
-            ));
+            anyhow::bail!("queue job {job_id} reported Done but never returned a result");
         }
         tokio::time::sleep(POLL_INTERVAL).await;
     }
