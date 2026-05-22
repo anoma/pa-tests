@@ -3,7 +3,7 @@ use std::panic::AssertUnwindSafe;
 
 use anoma_rm_risc0::action::Action;
 use anoma_rm_risc0::compliance_unit::ComplianceUnit;
-use anoma_rm_risc0::constants::COMPLIANCE_PK;
+use anoma_rm_risc0::constants::{COMPLIANCE_PK, COMPLIANCE_VK};
 use anoma_rm_risc0::delta_proof::DeltaWitness;
 use anoma_rm_risc0::logic_instance::{AppData, LogicInstance};
 use anoma_rm_risc0::logic_proof::LogicVerifierInputs;
@@ -390,7 +390,7 @@ fn build_compliance_proof_payload(
         witness,
         proving_key: COMPLIANCE_PK.to_vec(),
         proof_type: ProofType::Succinct,
-        verifying_key: vec![0u8],
+        verifying_key: COMPLIANCE_VK.as_bytes().to_vec(),
     })
 }
 
