@@ -1,8 +1,10 @@
 [workspace]
 members = [
   "crates/harness/core",
+  "crates/harness/evm-action-transfer",
   "crates/harness/evm-action-trivial",
   "crates/harness/evm-erc20",
+  "crates/harness/evm-erc20-forwarder",
   "crates/harness/evm-mock-permit2",
   "crates/harness/evm",
   "crates/tests/evm",
@@ -19,12 +21,18 @@ version = "0.1.0"
 [workspace.dependencies]
 pa-test-harness-core = { path = "crates/harness/core" }
 pa-test-harness-evm = { path = "crates/harness/evm" }
+pa-test-harness-evm-action-transfer = { path = "crates/harness/evm-action-transfer" }
 pa-test-harness-evm-action-trivial = { path = "crates/harness/evm-action-trivial" }
+pa-test-harness-evm-erc20 = { path = "crates/harness/evm-erc20" }
+pa-test-harness-evm-erc20-forwarder = { path = "crates/harness/evm-erc20-forwarder" }
+pa-test-harness-evm-mock-permit2 = { path = "crates/harness/evm-mock-permit2" }
 
 alloy = { version = "1.1.2", default-features = false }
 alloy-chains = "0.2.18"
 anoma-pa-evm-bindings = "2.1.0"
+anomapay-erc20-forwarder-bindings = "3.0.0-rc.0"
 anoma-rm-risc0 = { version = "1.1.1", default-features = false }
+anoma-rm-risc0-gadgets = "1.1.1"
 anyhow = "1.0"
 bincode = "1.3.3"
 hex = "0.4"
@@ -34,3 +42,5 @@ risc0-zkvm = "3.0.3"
 rstest = "0.26.1"
 sha2 = "0.11.0"
 tokio = { version = "1.48", features = ["rt-multi-thread"] }
+transfer_library = { git = "https://github.com/anoma/anomapay-backend-multichain", rev = "0f65cd9104e4664cea2c8b7e11f68c0c9807771d", package = "transfer_library" }
+transfer_witness = { git = "https://github.com/anoma/anomapay-backend-multichain", rev = "0f65cd9104e4664cea2c8b7e11f68c0c9807771d", package = "transfer_witness" }

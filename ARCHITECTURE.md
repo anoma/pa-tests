@@ -52,6 +52,14 @@ ERC-20 utilities for EVM scenarios:
 - deploy/mint helpers
 - typed state insertion and retrieval for token addresses
 
+### `crates/harness/evm-erc20-forwarder`
+
+ERC20 forwarder utilities for EVM transfer scenarios:
+
+- forwarder contract bindings
+- deploy and deploy+insert helpers
+- typed state insertion and retrieval for forwarder addresses
+
 ### `crates/harness/evm-mock-permit2`
 
 Utility for deploying and validating Permit2 at canonical address in local test environments.
@@ -60,6 +68,14 @@ Utility for deploying and validating Permit2 at canonical address in local test 
 
 Reusable builders for trivial action witness sets, including controlled invalid variants for negative tests.
 
+### `crates/harness/evm-action-transfer`
+
+Reusable builders for transfer witness action sets:
+
+- wrap, transfer, and unwrap action builders
+- Permit2 signing helpers and deterministic fixtures
+- override-driven invalid variants for negative tests
+
 ### `crates/tests/evm`
 
 Integration tests that exercise harness behavior through core abstractions and the EVM backend implementation.
@@ -67,7 +83,7 @@ Integration tests that exercise harness behavior through core abstractions and t
 ## Data flow
 
 1. Test setup constructs an environment and populates backend state.
-2. Tests build action witnesses (e.g., via `evm-action-trivial`).
+2. Tests build action witnesses (e.g., via `evm-action-trivial` or `evm-action-transfer`).
 3. `prove_actions` delegates to backend prover and returns backend transaction type.
 4. `execute_tx` delegates to backend protocol adapter execution.
 5. Successful execution updates the commitment tree; tests assert roots and error paths.

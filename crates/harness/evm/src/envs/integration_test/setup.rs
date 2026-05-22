@@ -10,7 +10,7 @@ use pa_test_harness_core::environment::StateBuilder;
 
 use crate::pa::{deploy_protocol_adapter, protocol_adapter};
 use crate::state::actors::insert_default_signer;
-use crate::state::chains::insert_chain_id;
+use crate::state::chains::insert_chain;
 use crate::state::pa::insert_pa_address;
 
 use super::{CommitmentTree, Environment, ProtocolAdapter, Prover};
@@ -54,7 +54,7 @@ impl Environment {
             let mut builder = StateBuilder::new();
 
             insert_default_signer(&mut builder, provider.clone());
-            insert_chain_id(&mut builder, named_chain);
+            insert_chain(&mut builder, named_chain);
             insert_pa_address(&mut builder, pa_address);
             insert_additional(&mut builder)
                 .await

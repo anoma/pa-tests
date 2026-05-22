@@ -9,8 +9,14 @@ version.workspace = true
 [dependencies]
 pa-test-harness-core.workspace = true
 pa-test-harness-evm = { workspace = true, features = ["pa-bindings", "mock-risc0-bindings"] }
+pa-test-harness-evm-action-transfer.workspace = true
 pa-test-harness-evm-action-trivial.workspace = true
+pa-test-harness-evm-erc20 = { workspace = true, features = ["example-erc20-bindings"] }
+pa-test-harness-evm-erc20-forwarder = { workspace = true, features = ["erc20-forwarder-bindings"] }
+pa-test-harness-evm-mock-permit2.workspace = true
 
+alloy = { workspace = true, features = ["providers", "signer-local"] }
+alloy-chains.workspace = true
 anyhow.workspace = true
 bincode.workspace = true
 regex.workspace = true

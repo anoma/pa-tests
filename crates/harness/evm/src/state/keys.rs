@@ -1,10 +1,14 @@
-use alloy_chains::NamedChain;
-
-pub const KEY_PREFIX_CHAIN_ID: &str = "evm.chain.id";
+pub const KEY_CHAIN_ID: &str = "evm.chain.id";
+pub const KEY_CHAIN_NAME: &str = "evm.chain.name";
 
 #[inline]
-pub fn chain_id_key(chain: NamedChain) -> String {
-    format!("{KEY_PREFIX_CHAIN_ID}.{}", chain.as_str())
+pub fn chain_id_key() -> &'static str {
+    KEY_CHAIN_ID
+}
+
+#[inline]
+pub fn chain_name_key() -> &'static str {
+    KEY_CHAIN_NAME
 }
 
 #[cfg(test)]
@@ -12,8 +16,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn chain_id_key_uses_named_chain_slug() {
-        assert_eq!(chain_id_key(NamedChain::Sepolia), "evm.chain.id.sepolia");
-        assert_eq!(chain_id_key(NamedChain::Mainnet), "evm.chain.id.mainnet");
+    fn chain_state_keys_are_stable() {
+        assert_eq!(chain_id_key(), "evm.chain.id");
+        assert_eq!(chain_name_key(), "evm.chain.name");
     }
 }
