@@ -2,6 +2,7 @@ use alloy::primitives::{Address, B256, U256};
 use anoma_rm_risc0::action_tree::MerkleTree as ArmTree;
 use anoma_rm_risc0::compliance::ComplianceWitness;
 use anoma_rm_risc0::logic_instance::LogicInstance;
+use anoma_rm_risc0::logic_proof::LogicProver;
 use anoma_rm_risc0::merkle_path::MerklePath;
 use anoma_rm_risc0::resource::Resource;
 use anoma_rm_risc0::resource_logic::LogicCircuit;
@@ -10,6 +11,7 @@ use anyhow::Context;
 use pa_test_harness_core::witness::ActionWitnesses;
 use pa_test_harness_core::witness::ComplianceUnitWitnesses;
 use pa_test_harness_core::witness::LogicWitness;
+use transfer_library::TransferLogic;
 use transfer_witness::AUTH_SIGNATURE_DOMAIN;
 use transfer_witness::EncryptionInfo;
 use transfer_witness::ForwarderInfo;
@@ -49,6 +51,15 @@ impl LogicWitness for TransferLogicWitness {
         LogicCircuit::constrain(&self.inner)
             .map_err(anyhow::Error::from)
             .context("invalid transfer logic witness")
+    }
+
+    fn witness_to_vec(&self) -> anyhow::Result<Vec<u32>> {
+        risc0_zkvm::serde::to_vec(&self.inner)
+            .context("failed to serialize transfer logic witness to risc0 words")
+    }
+
+    fn proving_key(&self) -> Vec<u8> {
+        TransferLogic::proving_key().to_vec()
     }
 }
 
