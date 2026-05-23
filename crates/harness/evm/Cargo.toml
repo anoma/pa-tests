@@ -7,9 +7,12 @@ readme.workspace = true
 version.workspace = true
 
 [features]
-default = ["pa-bindings"]
+default = ["integration"]
 pa-bindings = ["dep:anoma-pa-evm-bindings"]
 mock-risc0-bindings = []
+
+# test environments
+integration = ["pa-bindings", "mock-risc0-bindings"]
 e2e = ["pa-bindings", "dep:heliax-ap-orchestrator-sdk", "dep:futures", "dep:serde", "dep:tokio"]
 
 [dependencies]

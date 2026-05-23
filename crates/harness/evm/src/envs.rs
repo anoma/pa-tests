@@ -1,4 +1,4 @@
-#[cfg(all(feature = "pa-bindings", feature = "mock-risc0-bindings"))]
+#[cfg(feature = "integration")]
 pub mod integration_test;
 
 #[cfg(all(feature = "pa-bindings", feature = "e2e"))]
