@@ -1,10 +1,10 @@
 use alloy::primitives::Address;
-use alloy::primitives::address;
 use alloy::signers::k256::AffinePoint;
 use alloy::signers::local::PrivateKeySigner;
 use anoma_rm_risc0::nullifier_key::NullifierKey;
 use anoma_rm_risc0_gadgets::authority::AuthoritySigningKey;
 use anoma_rm_risc0_gadgets::authority::AuthorityVerifyingKey;
+use pa_test_harness_core::identities;
 
 #[derive(Clone)]
 pub struct TransferKeychain {
@@ -24,9 +24,9 @@ impl TransferKeychain {
 }
 
 pub fn sender_keychain() -> anyhow::Result<TransferKeychain> {
-    let ethereum_signer: PrivateKeySigner =
-        "7ad4b84636a3fa408827e7202f6da39287bbf099d1fab6250d3b56e03e77586b".parse()?;
+    let ethereum_signer: PrivateKeySigner = identities::ALICE.parse()?;
     let ethereum_addr = ethereum_signer.address();
+
     Ok(TransferKeychain {
         auth_signing_key: bincode::deserialize(&[
             49, 163, 242, 139, 6, 69, 133, 86, 182, 239, 39, 243, 37, 180, 9, 187, 61, 164, 247,
@@ -50,6 +50,9 @@ pub fn sender_keychain() -> anyhow::Result<TransferKeychain> {
 }
 
 pub fn receiver_keychain() -> anyhow::Result<TransferKeychain> {
+    let ethereum_signer: PrivateKeySigner = identities::BOB.parse()?;
+    let ethereum_addr = ethereum_signer.address();
+
     Ok(TransferKeychain {
         auth_signing_key: bincode::deserialize(&[
             194, 126, 0, 187, 29, 229, 72, 225, 199, 156, 11, 62, 167, 64, 148, 184, 132, 28, 88,
@@ -67,8 +70,7 @@ pub fn receiver_keychain() -> anyhow::Result<TransferKeychain> {
             33, 0, 0, 0, 0, 0, 0, 0, 2, 178, 56, 160, 238, 16, 199, 140, 94, 215, 48, 45, 177, 157,
             249, 90, 214, 36, 214, 152, 41, 227, 220, 80, 14, 71, 140, 34, 49, 75, 234, 244, 172,
         ])?,
-        ethereum_signer: "59c6995e998f97a5a0044966f094538d8f0f1d1593f17f5f8cfb743f7f6f5f17"
-            .parse()?,
-        ethereum_addr: address!("0x44B73CbC3C2E902cD0768854c2ff914DD44a325F"),
+        ethereum_signer,
+        ethereum_addr,
     })
 }

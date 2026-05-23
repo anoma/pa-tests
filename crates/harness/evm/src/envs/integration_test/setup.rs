@@ -1,5 +1,4 @@
 use alloy::node_bindings::Anvil;
-use alloy::primitives::b256;
 use alloy::primitives::utils::parse_ether;
 use alloy::providers::Provider;
 use alloy::providers::ProviderBuilder;
@@ -7,6 +6,7 @@ use alloy::providers::ext::AnvilApi;
 use alloy_chains::NamedChain;
 use anyhow::Context;
 use pa_test_harness_core::environment::StateBuilder;
+use pa_test_harness_core::identities;
 
 use crate::pa::{deploy_protocol_adapter, protocol_adapter};
 use crate::state::actors::insert_default_signer;
@@ -26,9 +26,8 @@ impl Environment {
     {
         let anvil = Anvil::new().spawn();
 
-        let signer = alloy::signers::local::PrivateKeySigner::from_bytes(&b256!(
-            "7ad4b84636a3fa408827e7202f6da39287bbf099d1fab6250d3b56e03e77586b"
-        ))?;
+        let signer =
+            alloy::signers::local::PrivateKeySigner::from_bytes(&identities::ALICE.parse()?)?;
         let deployer = signer.address();
 
         let provider = ProviderBuilder::new()

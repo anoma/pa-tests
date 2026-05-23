@@ -1,4 +1,5 @@
 pub mod environment;
+pub mod identities;
 #[cfg(feature = "mocks")]
 pub mod mocks;
 pub mod witness;
