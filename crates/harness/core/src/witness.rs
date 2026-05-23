@@ -46,6 +46,12 @@ pub trait LogicWitness {
 
     /// Constrain the circuit, yielding a logic instance.
     fn constrain(&self) -> anyhow::Result<LogicInstance>;
+
+    /// Serialize the witness to RISC-V words for remote proving.
+    fn witness_to_vec(&self) -> anyhow::Result<Vec<u32>>;
+
+    /// Proving key of the circuit.
+    fn proving_key(&self) -> Vec<u8>;
 }
 
 impl LogicWitness for Box<dyn LogicWitness> {
@@ -57,6 +63,16 @@ impl LogicWitness for Box<dyn LogicWitness> {
     #[inline]
     fn constrain(&self) -> anyhow::Result<LogicInstance> {
         (**self).constrain()
+    }
+
+    #[inline]
+    fn witness_to_vec(&self) -> anyhow::Result<Vec<u32>> {
+        (**self).witness_to_vec()
+    }
+
+    #[inline]
+    fn proving_key(&self) -> Vec<u8> {
+        (**self).proving_key()
     }
 }
 
@@ -73,5 +89,20 @@ where
     fn constrain(&self) -> anyhow::Result<LogicInstance> {
         <W as LogicCircuit>::constrain(self)
             .with_context(|| format!("invalid proof of {} witness", std::any::type_name::<W>()))
+    }
+
+    #[inline]
+    fn witness_to_vec(&self) -> anyhow::Result<Vec<u32>> {
+        risc0_zkvm::serde::to_vec(<W as LogicProver>::witness(self)).with_context(|| {
+            format!(
+                "failed to serialize {} witness to risc0 words",
+                std::any::type_name::<W>()
+            )
+        })
+    }
+
+    #[inline]
+    fn proving_key(&self) -> Vec<u8> {
+        <W as LogicProver>::proving_key().to_vec()
     }
 }

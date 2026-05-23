@@ -1,3 +1,6 @@
+#[cfg(feature = "e2e")]
+pub type EvmE2eEnv = pa_test_harness_evm::envs::e2e::Environment;
+
 pub type EvmIntegrationEnv = pa_test_harness_evm::envs::integration_test::Environment;
 pub type EvmIntegrationTx = pa_test_harness_evm::envs::integration_test::Transaction;
 
@@ -89,6 +92,57 @@ pub async fn setup_transfer_integration_env() -> anyhow::Result<EvmIntegrationEn
             .context("failed to retrieve protocol adapter address from setup state")?;
 
         deploy_permit2_canonical(&provider).await?;
+
+        let deployer = sender_keychain()
+            .context("failed to build sender keychain")?
+            .ethereum_addr;
+
+        let token = deploy_and_insert_example_erc20(
+            builder,
+            "example",
+            provider.clone(),
+            deployer,
+            U256::from(1_000_000u64),
+        )
+        .await
+        .context("failed to deploy and insert ERC20Example")?;
+
+        let logic_ref = B256::from(<[u8; 32]>::from(token_transfer_vk()));
+
+        deploy_and_insert_erc20_forwarder(
+            builder,
+            provider.clone(),
+            pa_address,
+            logic_ref,
+            deployer,
+        )
+        .await
+        .context("failed to deploy and insert ERC20 forwarder v1")?;
+
+        erc20_example(token, provider.clone())
+            .approve(
+                pa_test_harness_evm_mock_permit2::PERMIT2_CANONICAL_ADDRESS,
+                U256::MAX,
+            )
+            .send()
+            .await
+            .context("failed to submit permit2 approval transaction")?
+            .get_receipt()
+            .await
+            .context("failed to fetch permit2 approval receipt")?;
+
+        Ok(())
+    })
+    .await
+}
+
+#[cfg(feature = "e2e")]
+pub async fn setup_transfer_e2e_env() -> anyhow::Result<EvmE2eEnv> {
+    EvmE2eEnv::setup(async |builder: &mut StateBuilder| {
+        let provider = default_signer_in_state(builder.as_state())
+            .context("failed to retrieve default signer from setup state")?;
+        let pa_address = pa_address_in_state(builder.as_state())
+            .context("failed to retrieve protocol adapter address from setup state")?;
 
         let deployer = sender_keychain()
             .context("failed to build sender keychain")?

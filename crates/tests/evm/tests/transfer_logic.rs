@@ -1,4 +1,6 @@
 use anyhow::Context;
+#[cfg(feature = "e2e")]
+use pa_evm_tests::setup_transfer_e2e_env;
 use pa_evm_tests::{
     Needle, commitment_root, execute_tx, expect_integration_panic, prove_actions,
     setup_transfer_integration_env, transfer_chain_id, transfer_forwarder_address,
@@ -16,6 +18,7 @@ use rstest::*;
 
 #[rstest]
 #[case::integration_test(setup_transfer_integration_env())]
+#[cfg_attr(feature = "e2e", case::e2e_test(setup_transfer_e2e_env()))]
 #[tokio::test]
 async fn happy_wrap_transfer_unwrap<Env: Environment>(
     #[future(awt)]

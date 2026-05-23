@@ -13,6 +13,7 @@ env:
   CACHE_VERSION: v0
 jobs:
   fmt-check:
+    name: Check Code Formatting
     runs-on: ubuntu-latest # Standard runner is fine for simple formatting
     steps:
       - uses: actions/checkout@v4
@@ -104,6 +105,56 @@ jobs:
       - name: Run integration tests
         run: cargo nextest run -E 'not package(/harness-.*/)' integration_test
         env:
+          RISC0_SKIP_BUILD_KERNELS: 1
+          RUSTC_WRAPPER: sccache
+  test-e2e:
+    name: Test E2E
+    runs-on: runs-on=${{ github.run_id }}/runner=8cpu-linux-x64/family=c7+c8+m8azn/image=ubuntu24-full-x64/spot=true
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.BACKEND_MULTICHAIN_SSH_KEY }}
+      - name: Swap HTTPS for SSH
+        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
+      - uses: runs-on/action@v2
+        with:
+          metrics: cpu,memory
+      - uses: rui314/setup-mold@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          cache: false
+      - name: Cache cargo
+        uses: runs-on/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-e2e-${{ hashFiles('**/Cargo.lock') }}-${{ env.CACHE_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-e2e-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-cargo-e2e-
+      - name: Run sccache-cache
+        uses: mozilla-actions/sccache-action@v0.0.9
+        env:
+          SCCACHE_BUCKET: ${{ env.RUNS_ON_S3_BUCKET_CACHE }}
+          SCCACHE_S3_KEY_PREFIX: /anoma/pa-tests/sccache/e2e
+      - name: Install foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@cargo-nextest
+      - name: Run e2e tests
+        run: cargo nextest run -F e2e -E 'not package(/harness-.*/)' e2e_test
+        env:
+          ALCHEMY_API_KEY: ${{ secrets.ALCHEMY_API_KEY }}
+          QUEUE_AUTH_TOKEN: ${{ secrets.QUEUE_AUTH_TOKEN }}
+          QUEUE_BASE_URL: ${{ secrets.QUEUE_BASE_URL }}
           RISC0_SKIP_BUILD_KERNELS: 1
           RUSTC_WRAPPER: sccache
   test-harness:

@@ -14,3 +14,4 @@ mocks = ["dep:mockall"]
 anoma-rm-risc0 = { workspace = true, features = ["transaction", "compliance_circuit"] }
 anyhow.workspace = true
 mockall = { workspace = true, optional = true }
+risc0-zkvm.workspace = true

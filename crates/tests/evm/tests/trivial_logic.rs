@@ -1,4 +1,6 @@
 use anyhow::Context;
+#[cfg(feature = "e2e")]
+use pa_evm_tests::EvmE2eEnv;
 use pa_evm_tests::{
     EvmIntegrationEnv, Needle, commitment_root, execute_tx, expect_integration_panic,
     prove_actions, tamper_integration_first_logic_seal,
@@ -11,6 +13,7 @@ use rstest::*;
 
 #[rstest]
 #[case::integration_test(EvmIntegrationEnv::setup_bare())]
+#[cfg_attr(feature = "e2e", case::e2e_test(EvmE2eEnv::setup_bare()))]
 #[tokio::test]
 async fn trivial_happy_flow<Env: Environment>(
     #[future(awt)]
