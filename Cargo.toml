@@ -6,6 +6,7 @@ members = [
   "crates/harness/evm-action-trivial",
   "crates/harness/evm-erc20",
   "crates/harness/evm-erc20-forwarder",
+  "crates/harness/evm-generic-call-forwarder",
   "crates/harness/evm-mock-permit2",
   "crates/harness/evm",
   "crates/tests/evm",
@@ -27,11 +28,13 @@ pa-test-harness-evm-action-transfer = { path = "crates/harness/evm-action-transf
 pa-test-harness-evm-action-trivial = { path = "crates/harness/evm-action-trivial" }
 pa-test-harness-evm-erc20 = { path = "crates/harness/evm-erc20" }
 pa-test-harness-evm-erc20-forwarder = { path = "crates/harness/evm-erc20-forwarder" }
+pa-test-harness-evm-generic-call-forwarder = { path = "crates/harness/evm-generic-call-forwarder" }
 pa-test-harness-evm-mock-permit2 = { path = "crates/harness/evm-mock-permit2" }
 
 alloy = { version = "2.0.5", default-features = false }
 alloy-chains = "0.2.33"
 anoma-pa-evm-bindings = "3.0.0-rc.1"
+anoma-generic-call-forwarder-bindings = "1.0.0-rc.2"
 anomapay-erc20-forwarder-bindings = "3.0.0-rc.1"
 anoma-rm-risc0 = { version = "1.1.1", default-features = false }
 anoma-rm-risc0-gadgets = "1.1.1"
