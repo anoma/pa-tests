@@ -4814,7 +4814,7 @@ dependencies = [
 
 [[package]]
 name = "pa-evm-tests"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "alloy",
  "alloy-chains",
@@ -4835,7 +4835,7 @@ dependencies = [
 
 [[package]]
 name = "pa-test-harness-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anoma-rm-risc0",
  "anyhow",
@@ -4845,7 +4845,7 @@ dependencies = [
 
 [[package]]
 name = "pa-test-harness-evm"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "alloy",
  "alloy-chains",
@@ -4866,7 +4866,7 @@ dependencies = [
 
 [[package]]
 name = "pa-test-harness-evm-action-transfer"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "alloy",
  "anoma-rm-risc0",
@@ -4881,7 +4881,7 @@ dependencies = [
 
 [[package]]
 name = "pa-test-harness-evm-action-trivial"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anoma-rm-risc0",
  "anyhow",
@@ -4891,7 +4891,7 @@ dependencies = [
 
 [[package]]
 name = "pa-test-harness-evm-erc20"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "alloy",
  "anyhow",
@@ -4900,7 +4900,7 @@ dependencies = [
 
 [[package]]
 name = "pa-test-harness-evm-erc20-forwarder"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "alloy",
  "anomapay-erc20-forwarder-bindings",
@@ -4910,7 +4910,7 @@ dependencies = [
 
 [[package]]
 name = "pa-test-harness-evm-mock-permit2"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "alloy",
  "anyhow",

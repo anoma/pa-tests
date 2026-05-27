@@ -16,7 +16,7 @@ authors = ["Heliax <hello@heliax.dev>"]
 edition = "2024"
 license = "GPL-3.0"
 readme = "README.md"
-version = "0.1.0"
+version = "0.2.0"
 
 [workspace.dependencies]
 pa-test-harness-core = { path = "crates/harness/core" }
