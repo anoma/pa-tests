@@ -27,10 +27,10 @@ pa-test-harness-evm-erc20 = { path = "crates/harness/evm-erc20" }
 pa-test-harness-evm-erc20-forwarder = { path = "crates/harness/evm-erc20-forwarder" }
 pa-test-harness-evm-mock-permit2 = { path = "crates/harness/evm-mock-permit2" }
 
-alloy = { version = "1.1.2", default-features = false }
-alloy-chains = "0.2.18"
-anoma-pa-evm-bindings = "2.1.0"
-anomapay-erc20-forwarder-bindings = "3.0.0-rc.0"
+alloy = { version = "2.0.5", default-features = false }
+alloy-chains = "0.2.33"
+anoma-pa-evm-bindings = "3.0.0-rc.1"
+anomapay-erc20-forwarder-bindings = "3.0.0-rc.1"
 anoma-rm-risc0 = { version = "1.1.1", default-features = false }
 anoma-rm-risc0-gadgets = "1.1.1"
 anyhow = "1.0"
