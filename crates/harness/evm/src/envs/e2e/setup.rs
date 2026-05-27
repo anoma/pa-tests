@@ -32,7 +32,7 @@ impl Environment {
         let config = E2eConfig::from_env().context("failed to parse e2e test config")?;
 
         let fork_url = format!(
-            "https://eth-sepolia.g.alchemy.com/v2/{}",
+            "https://base-sepolia.g.alchemy.com/v2/{}",
             config.alchemy_api_key
         );
         let anvil = Anvil::new().fork(fork_url).spawn();
