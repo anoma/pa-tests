@@ -53,13 +53,24 @@ async fn wrap_unwrap_weth_via_generic_call<Env: Environment>(
         .call()
         .await
         .context("failed to read sender WETH balance before wrap")?;
+    let erc20_forwarder_weth_before_wrap = ierc20(weth, provider.clone())
+        .balanceOf(erc20_forwarder)
+        .call()
+        .await
+        .context("failed to read ERC20 forwarder WETH balance before wrap")?;
+    let generic_forwarder_weth_before_unwrap = ierc20(weth, provider.clone())
+        .balanceOf(generic_forwarder)
+        .call()
+        .await
+        .context("failed to read generic call forwarder WETH balance before unwrap")?;
+    let rand_seed = 11;
 
     let wrapped = build_wrap_action_with_overrides(
         chain_id,
         erc20_forwarder,
         weth,
         amount,
-        11,
+        rand_seed,
         WrapActionOverrides::default(),
     )
     .await
@@ -87,23 +98,25 @@ async fn wrap_unwrap_weth_via_generic_call<Env: Environment>(
         .await
         .context("failed to read ERC20 forwarder WETH balance after wrap")?;
     anyhow::ensure!(
-        erc20_forwarder_weth_after_wrap == amount_u256,
+        erc20_forwarder_weth_after_wrap - erc20_forwarder_weth_before_wrap == amount_u256,
         "ERC20 forwarder WETH must equal wrapped amount"
     );
 
-    let transfer_path = env
+    let transfer_merkle_path = env
         .protocol_adapter()
         .commitment_tree()
         .path_to(wrapped.created_persistent.commitment())
         .context("failed to generate transfer merkle path")?;
 
+    let rand_seed = 17;
+
     let transferred = build_transfer_action_with_overrides_and_path(
         wrapped.created_persistent,
         erc20_forwarder,
         weth,
-        17,
+        rand_seed,
         TransferActionOverrides::default(),
-        Some(transfer_path),
+        Some(transfer_merkle_path),
     )
     .context("failed to build transfer action")?;
     let tx = prove_actions(&env, &[transferred.action])
@@ -113,22 +126,24 @@ async fn wrap_unwrap_weth_via_generic_call<Env: Environment>(
         .await
         .context("failed to execute transfer action")?;
 
-    let unwrap_path = env
+    let unwrap_merkle_path = env
         .protocol_adapter()
         .commitment_tree()
         .path_to(transferred.created_persistent.commitment())
         .context("failed to generate unwrap merkle path")?;
 
+    let rand_seed = 21;
+
     let unwrapped = build_unwrap_action_with_overrides_and_path(
         transferred.created_persistent,
         erc20_forwarder,
         weth,
-        21,
+        rand_seed,
         UnwrapActionOverrides {
             unwrap_ethereum_account_addr: Some(generic_forwarder.to_vec()),
             ..UnwrapActionOverrides::default()
         },
-        Some(unwrap_path),
+        Some(unwrap_merkle_path),
     )
     .context("failed to build unwrap action")?;
 
@@ -145,8 +160,11 @@ async fn wrap_unwrap_weth_via_generic_call<Env: Environment>(
         },
     ];
 
-    let generic_call_action = build_generic_call_action(31, generic_forwarder.to_vec(), calls)
-        .context("failed to build generic call action")?;
+    let rand_seed = 31;
+
+    let generic_call_action =
+        build_generic_call_action(rand_seed, generic_forwarder.to_vec(), calls)
+            .context("failed to build generic call action")?;
 
     let tx = prove_actions(&env, &[unwrapped.action])
         .await
@@ -161,7 +179,7 @@ async fn wrap_unwrap_weth_via_generic_call<Env: Environment>(
         .await
         .context("failed to read generic call forwarder WETH balance after unwrap")?;
     anyhow::ensure!(
-        generic_forwarder_weth_after_unwrap == amount_u256,
+        generic_forwarder_weth_after_unwrap - generic_forwarder_weth_before_unwrap == amount_u256,
         "generic call forwarder WETH must equal unwrap amount before generic call"
     );
 
