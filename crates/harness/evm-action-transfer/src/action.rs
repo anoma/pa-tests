@@ -388,6 +388,18 @@ pub fn build_unwrap_action_with_overrides_and_path(
 ) -> anyhow::Result<UnwrapActionParts> {
     let owner = receiver_keychain()?;
 
+    let mut resource_overrides = overrides.clone();
+    if resource_overrides.created_value_ref.is_none()
+        && let Some(unwrap_ethereum_account_addr) =
+            resource_overrides.unwrap_ethereum_account_addr.as_ref()
+    {
+        resource_overrides.created_value_ref = Some(
+            transfer_witness::calculate_value_ref_from_ethereum_account_addr(
+                unwrap_ethereum_account_addr,
+            ),
+        );
+    }
+
     let mut consumed = resource_to_unwrap;
     if let Some(quantity) = overrides.quantity {
         consumed.quantity = quantity;
@@ -401,7 +413,7 @@ pub fn build_unwrap_action_with_overrides_and_path(
         token,
         consumed.quantity,
         seed,
-        &overrides,
+        &resource_overrides,
     )?;
 
     let action_tree_root = ArmTree::new(vec![consumed_nf, created.commitment()]).root()?;
@@ -437,7 +449,10 @@ pub fn build_unwrap_action_with_overrides_and_path(
         None,
         Some(ForwarderInfo {
             call_type: CallType::Unwrap,
-            ethereum_account_addr: owner.ethereum_addr.to_vec(),
+            ethereum_account_addr: overrides
+                .unwrap_ethereum_account_addr
+                .clone()
+                .unwrap_or_else(|| owner.ethereum_addr.to_vec()),
             permit_info: None,
         }),
         Some(LabelInfo {

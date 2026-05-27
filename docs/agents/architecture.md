@@ -8,9 +8,11 @@ Scope: crate responsibilities and data flow.
 - `crates/harness/evm`: EVM harness implementation, state helpers, PA/mock Risc0 deploy and integration/e2e envs.
 - `crates/harness/evm-erc20`: ERC-20 bindings and token address state helpers.
 - `crates/harness/evm-erc20-forwarder`: ERC20 forwarder bindings, deploy helpers, and forwarder address state helpers.
+- `crates/harness/evm-generic-call-forwarder`: generic call forwarder bindings, deploy helpers, and forwarder address state helpers.
 - `crates/harness/evm-mock-permit2`: optional Permit2 canonical deployment helper.
 - `crates/harness/evm-action-trivial`: trivial action witness builders for test scenarios.
 - `crates/harness/evm-action-transfer`: transfer witness action builders for wrap/transfer/unwrap and negative test variants.
+- `crates/harness/evm-action-generic-call`: generic call witness action builders for test scenarios.
 - `crates/tests/evm`: cross-crate EVM tests using harness abstractions.
 
 ## Core Flow
