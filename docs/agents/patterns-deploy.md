@@ -20,6 +20,7 @@ Scope: deploy/init helpers and state insertion conventions.
 - `crates/harness/evm-erc20/src/weth_bindings.rs`: `deploy_weth`, `deploy_and_mint_weth`, `deploy_and_insert_weth`.
 - `crates/harness/evm-erc20/src/example_erc20_bindings.rs`: matching ERC20Example helpers.
 - `crates/harness/evm-erc20-forwarder/src/erc20_forwarder_bindings.rs`: `deploy_erc20_forwarder`, `deploy_and_insert_erc20_forwarder`.
+- `crates/harness/evm-generic-call-forwarder/src/generic_call_forwarder_bindings.rs`: `deploy_generic_call_forwarder`, `deploy_and_insert_generic_call_forwarder`.
 - `crates/harness/evm-mock-permit2/src/lib.rs`: canonical Permit2 deployment utility.
 
 ## Do / Do Not

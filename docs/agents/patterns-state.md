@@ -20,6 +20,7 @@ Scope: define and access harness state.
 - `crates/harness/evm/src/state/keys.rs`: `KEY_CHAIN_ID = "evm.chain.id"`, `KEY_CHAIN_NAME = "evm.chain.name"`.
 - `crates/harness/evm/src/state/chains.rs`: `insert_chain`, `chain_id`, `chain_name` typed helpers.
 - `crates/harness/evm-erc20/src/state/keys.rs`: `evm.erc20.addr.<symbol>`.
+- `crates/harness/evm-generic-call-forwarder/src/state/keys.rs`: `evm.forwarder.generic-call.v1`.
 
 ## Do / Do Not
 
