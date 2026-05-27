@@ -87,6 +87,7 @@ pub struct UnwrapActionOverrides {
     pub created_value_ref: Option<Digest>,
     pub created_label_ref: Option<Digest>,
     pub created_is_ephemeral: Option<bool>,
+    pub unwrap_ethereum_account_addr: Option<Vec<u8>>,
     pub auth_signature: Option<anoma_rm_risc0_gadgets::authority::AuthoritySignature>,
 }
 

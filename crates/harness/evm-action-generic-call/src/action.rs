@@ -82,6 +82,8 @@ pub fn build_generic_call_action_with_parts(
     calls: Vec<GenericCall>,
     overrides: GenericCallActionOverrides,
 ) -> anyhow::Result<GenericCallActionParts> {
+    let created_calls: Vec<GenericCall> = Vec::new();
+
     let nf_key = resource::nullifier_key(seed);
     let nk_commitment = nf_key.commit();
 
@@ -95,7 +97,7 @@ pub fn build_generic_call_action_with_parts(
         nk_commitment,
         consumed_nullifier,
         &forwarder_addr,
-        &calls,
+        &created_calls,
         &overrides,
     )?;
 
@@ -123,7 +125,7 @@ pub fn build_generic_call_action_with_parts(
         created_resource,
         action_tree_root,
         forwarder_addr,
-        calls,
+        created_calls,
     )
     .witness;
 
