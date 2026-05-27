@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "crates/harness/core",
+  "crates/harness/evm-action-generic-call",
   "crates/harness/evm-action-transfer",
   "crates/harness/evm-action-trivial",
   "crates/harness/evm-erc20",
@@ -21,6 +22,7 @@ version = "0.2.0"
 [workspace.dependencies]
 pa-test-harness-core = { path = "crates/harness/core" }
 pa-test-harness-evm = { path = "crates/harness/evm" }
+pa-test-harness-evm-action-generic-call = { path = "crates/harness/evm-action-generic-call" }
 pa-test-harness-evm-action-transfer = { path = "crates/harness/evm-action-transfer" }
 pa-test-harness-evm-action-trivial = { path = "crates/harness/evm-action-trivial" }
 pa-test-harness-evm-erc20 = { path = "crates/harness/evm-erc20" }
@@ -39,6 +41,8 @@ futures = "0.3"
 heliax-ap-orchestrator-sdk = "0.14.0"
 serde = "1"
 hex = "0.4"
+generic_call_library = { git = "https://github.com/anoma/generic-call-resource", rev = "2.0.0-rc2" }
+generic_call_witness = { git = "https://github.com/anoma/generic-call-resource", rev = "2.0.0-rc2" }
 mockall = "0.14.0"
 regex = "1.12.3"
 risc0-zkvm = "3.0.3"
